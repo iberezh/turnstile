@@ -10,6 +10,7 @@ export interface TicketTypeRecord {
   priceCents: number;
   currency: string;
   capacity: number;
+  reserved: number;
   salesStart: Date | null;
   salesEnd: Date | null;
   position: number;
@@ -23,6 +24,7 @@ function toTicketType(row: Selectable<TicketTypesTable>): TicketTypeRecord {
     priceCents: row.price_cents,
     currency: row.currency,
     capacity: row.capacity,
+    reserved: row.reserved,
     salesStart: row.sales_start,
     salesEnd: row.sales_end,
     position: row.position,
