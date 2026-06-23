@@ -8,6 +8,8 @@ const EnvSchema = z.object({
   JWT_SECRET: z.string().min(1).default('dev-only-insecure-change-me'),
   PORT: z.coerce.number().int().positive().default(4002),
   WEB_ORIGIN: z.string().default('http://localhost:3003'),
+  // Optional: without it the mock payments adapter runs (keyless dev/CI).
+  STRIPE_SECRET_KEY: z.string().default(''),
 });
 
 export type Config = z.infer<typeof EnvSchema>;
