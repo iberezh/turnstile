@@ -4,10 +4,10 @@ import { z } from 'zod';
 // fallbacks beyond the documented dev defaults.
 const EnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  DATABASE_URL: z.string().default('postgresql://turnstile:turnstile@localhost:5432/turnstile'),
+  DATABASE_URL: z.string().default('postgresql://turnstile:turnstile@localhost:5436/turnstile'),
   JWT_SECRET: z.string().min(1).default('dev-only-insecure-change-me'),
-  PORT: z.coerce.number().int().positive().default(4000),
-  WEB_ORIGIN: z.string().default('http://localhost:3000'),
+  PORT: z.coerce.number().int().positive().default(4002),
+  WEB_ORIGIN: z.string().default('http://localhost:3003'),
 });
 
 export type Config = z.infer<typeof EnvSchema>;

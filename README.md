@@ -24,9 +24,9 @@
 ```bash
 pnpm install
 cp .env.example .env
-docker compose up -d postgres
-pnpm --filter @turnstile/api dev    # http://localhost:4000
-pnpm --filter @turnstile/web dev    # http://localhost:3000
+docker compose up -d postgres       # Postgres on :5436
+pnpm --filter @turnstile/api dev    # http://localhost:4002
+pnpm --filter @turnstile/web dev    # http://localhost:3003
 ```
 
 ## Project layout

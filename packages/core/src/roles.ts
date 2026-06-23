@@ -1,13 +1,26 @@
 import { ORG_PERMISSIONS, type OrgPermission, type PlatformPermission } from './permissions.js';
 
-export type OrgRole = 'owner' | 'admin' | 'event_manager' | 'finance' | 'scanner' | 'viewer';
-export type PlatformRole =
-  | 'superadmin'
-  | 'platform_admin'
-  | 'finance_admin'
-  | 'support'
-  | 'trust_safety'
-  | 'analyst';
+// Tuples (not just unions) so the role names are also available at runtime — for Zod input
+// validation and for narrowing a role string read back from the database.
+export const ORG_ROLES = [
+  'owner',
+  'admin',
+  'event_manager',
+  'finance',
+  'scanner',
+  'viewer',
+] as const;
+export const PLATFORM_ROLES = [
+  'superadmin',
+  'platform_admin',
+  'finance_admin',
+  'support',
+  'trust_safety',
+  'analyst',
+] as const;
+
+export type OrgRole = (typeof ORG_ROLES)[number];
+export type PlatformRole = (typeof PLATFORM_ROLES)[number];
 
 // Org roles → their permission bundle. Owner gets everything; the rest are least-privilege
 // slices (finance touches money, scanner only checks people in, viewer is read-only).
