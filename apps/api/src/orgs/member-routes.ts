@@ -1,4 +1,5 @@
 import Router from '@koa/router';
+import { canManageOrgRole } from '@turnstile/core';
 import { writeAudit } from '../audit/repository.js';
 import { requireAuth } from '../auth/middleware.js';
 import { findUserByEmail } from '../auth/repository.js';
@@ -59,6 +60,13 @@ memberRouter.post(
       ctx.body = { error: 'already a member' };
       return;
     }
+    // Can't grant a role above your own (an admin can't mint an owner).
+    const actorRole = await getOrgRole(actor.id, orgId);
+    if (!actorRole || !canManageOrgRole(actorRole, parsed.data.role)) {
+      ctx.status = 403;
+      ctx.body = { error: 'cannot grant a role above your own' };
+      return;
+    }
     await addMembership(orgId, target.id, parsed.data.role);
     await writeAudit({
       actorId: actor.id,
@@ -101,6 +109,17 @@ memberRouter.patch(
       ctx.body = { error: 'not a member' };
       return;
     }
+    // Can't modify a member ranked above you, nor promote anyone above your own rank.
+    const actorRole = await getOrgRole(actor.id, orgId);
+    if (
+      !actorRole ||
+      !canManageOrgRole(actorRole, current) ||
+      !canManageOrgRole(actorRole, parsed.data.role)
+    ) {
+      ctx.status = 403;
+      ctx.body = { error: 'cannot manage a role above your own' };
+      return;
+    }
     // An org must always keep at least one owner.
     if (current === 'owner' && parsed.data.role !== 'owner' && (await countOwners(orgId)) === 1) {
       ctx.status = 400;
@@ -136,6 +155,13 @@ memberRouter.delete(
     if (!current) {
       ctx.status = 404;
       ctx.body = { error: 'not a member' };
+      return;
+    }
+    // Can't remove a member ranked above you (an admin can't remove an owner).
+    const actorRole = await getOrgRole(actor.id, orgId);
+    if (!actorRole || !canManageOrgRole(actorRole, current)) {
+      ctx.status = 403;
+      ctx.body = { error: 'cannot manage a role above your own' };
       return;
     }
     if (current === 'owner' && (await countOwners(orgId)) === 1) {
