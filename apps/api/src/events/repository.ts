@@ -108,12 +108,17 @@ export async function setEventStatus(id: string, status: EventStatus): Promise<v
     .execute();
 }
 
+// Marketplace-visible = published, not moderated away, and the owning org isn't suspended.
+// The org-suspend / event-moderate flags are written by the separate platform control plane.
 export async function listPublishedEvents(): Promise<EventRecord[]> {
   const rows = await db
     .selectFrom('events')
-    .selectAll()
-    .where('status', '=', 'published')
-    .orderBy('starts_at', 'asc')
+    .innerJoin('organizations', 'organizations.id', 'events.org_id')
+    .selectAll('events')
+    .where('events.status', '=', 'published')
+    .where('events.moderation_status', '=', 'ok')
+    .where('organizations.suspended_at', 'is', null)
+    .orderBy('events.starts_at', 'asc')
     .execute();
   return rows.map(toEvent);
 }
@@ -121,9 +126,12 @@ export async function listPublishedEvents(): Promise<EventRecord[]> {
 export async function getPublishedEventBySlug(slug: string): Promise<EventRecord | undefined> {
   const row = await db
     .selectFrom('events')
-    .selectAll()
-    .where('slug', '=', slug)
-    .where('status', '=', 'published')
+    .innerJoin('organizations', 'organizations.id', 'events.org_id')
+    .selectAll('events')
+    .where('events.slug', '=', slug)
+    .where('events.status', '=', 'published')
+    .where('events.moderation_status', '=', 'ok')
+    .where('organizations.suspended_at', 'is', null)
     .executeTakeFirst();
   return row ? toEvent(row) : undefined;
 }
