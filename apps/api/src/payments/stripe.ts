@@ -1,5 +1,10 @@
 import Stripe from 'stripe';
-import type { AccountStatus, PaymentsProvider } from './provider.js';
+import type {
+  AccountStatus,
+  CreateIntentInput,
+  PaymentIntentResult,
+  PaymentsProvider,
+} from './provider.js';
 
 // Real Stripe Connect (Express). Destination charges in P2c route funds to this account and keep
 // the platform take-rate as an application fee.
@@ -33,5 +38,21 @@ export class StripePayments implements PaymentsProvider {
   async getAccountStatus(accountId: string): Promise<AccountStatus> {
     const account = await this.stripe.accounts.retrieve(accountId);
     return { chargesEnabled: account.charges_enabled ?? false };
+  }
+
+  async createPaymentIntent(input: CreateIntentInput): Promise<PaymentIntentResult> {
+    const pi = await this.stripe.paymentIntents.create({
+      amount: input.amountCents,
+      currency: input.currency,
+      application_fee_amount: input.applicationFeeCents,
+      transfer_data: { destination: input.destinationAccountId },
+      metadata: input.metadata,
+      automatic_payment_methods: { enabled: true },
+    });
+    return {
+      id: pi.id,
+      clientSecret: pi.client_secret,
+      status: pi.status === 'succeeded' ? 'succeeded' : 'requires_payment_method',
+    };
   }
 }

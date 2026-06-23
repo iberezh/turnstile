@@ -90,6 +90,31 @@ export interface TicketHoldsTable {
   created_at: Generated<Date>;
 }
 
+export interface OrdersTable {
+  id: Generated<string>;
+  event_id: string;
+  org_id: string;
+  hold_id: string;
+  payment_intent_id: string;
+  buyer_email: string;
+  amount_cents: number;
+  fee_cents: number;
+  currency: string;
+  status: Generated<string>;
+  created_at: Generated<Date>;
+}
+
+export interface TicketsTable {
+  id: Generated<string>;
+  order_id: string;
+  event_id: string;
+  ticket_type_id: string;
+  attendee_email: string;
+  status: Generated<string>;
+  scanned_at: Date | null;
+  created_at: Generated<Date>;
+}
+
 export interface SchemaMigrationsTable {
   name: string;
   applied_at: Generated<Date>;
@@ -104,5 +129,7 @@ export interface Database {
   events: EventsTable;
   ticket_types: TicketTypesTable;
   ticket_holds: TicketHoldsTable;
+  orders: OrdersTable;
+  tickets: TicketsTable;
   schema_migrations: SchemaMigrationsTable;
 }
