@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { roleHasOrgPermission, roleHasPlatformPermission } from './authorize.js';
+import { canManageOrgRole, roleHasOrgPermission, roleHasPlatformPermission } from './authorize.js';
 import { ORG_PERMISSIONS } from './permissions.js';
 import { ORG_ROLE_PERMISSIONS } from './roles.js';
 
@@ -23,6 +23,22 @@ describe('org role bundles', () => {
   it('only the owner can delete the org', () => {
     expect(roleHasOrgPermission('owner', 'org:delete')).toBe(true);
     expect(roleHasOrgPermission('admin', 'org:delete')).toBe(false);
+  });
+});
+
+describe('role delegation (anti-escalation)', () => {
+  it('an admin cannot grant or modify the owner role', () => {
+    expect(canManageOrgRole('admin', 'owner')).toBe(false);
+  });
+
+  it('only an owner can grant the owner role', () => {
+    expect(canManageOrgRole('owner', 'owner')).toBe(true);
+  });
+
+  it('an admin can manage roles at or below admin', () => {
+    expect(canManageOrgRole('admin', 'admin')).toBe(true);
+    expect(canManageOrgRole('admin', 'event_manager')).toBe(true);
+    expect(canManageOrgRole('admin', 'scanner')).toBe(true);
   });
 });
 

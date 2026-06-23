@@ -22,6 +22,17 @@ export const PLATFORM_ROLES = [
 export type OrgRole = (typeof ORG_ROLES)[number];
 export type PlatformRole = (typeof PLATFORM_ROLES)[number];
 
+// Org-role rank for delegation limits: a member may only grant or act on a role at or below
+// their own. Stops an admin from minting/modifying an owner (privilege escalation).
+export const ORG_ROLE_RANK: Record<OrgRole, number> = {
+  owner: 5,
+  admin: 4,
+  event_manager: 3,
+  finance: 3,
+  scanner: 2,
+  viewer: 1,
+};
+
 // Org roles → their permission bundle. Owner gets everything; the rest are least-privilege
 // slices (finance touches money, scanner only checks people in, viewer is read-only).
 export const ORG_ROLE_PERMISSIONS: Record<OrgRole, readonly OrgPermission[]> = {

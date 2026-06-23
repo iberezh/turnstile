@@ -1,6 +1,7 @@
 import type { OrgPermission, PlatformPermission } from './permissions.js';
 import {
   ORG_ROLE_PERMISSIONS,
+  ORG_ROLE_RANK,
   type OrgRole,
   PLATFORM_ROLE_PERMISSIONS,
   type PlatformRole,
@@ -17,4 +18,10 @@ export function roleHasPlatformPermission(
   permission: PlatformPermission,
 ): boolean {
   return PLATFORM_ROLE_PERMISSIONS[role].includes(permission);
+}
+
+// Whether an actor with `actorRole` may grant or act on `otherRole` — only at or below their own
+// rank. So an admin can't create or modify an owner, and only an owner can grant the owner role.
+export function canManageOrgRole(actorRole: OrgRole, otherRole: OrgRole): boolean {
+  return ORG_ROLE_RANK[actorRole] >= ORG_ROLE_RANK[otherRole];
 }
