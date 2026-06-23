@@ -101,6 +101,7 @@ export interface OrdersTable {
   fee_cents: number;
   currency: string;
   status: Generated<string>;
+  refunded_at: Date | null;
   created_at: Generated<Date>;
 }
 
