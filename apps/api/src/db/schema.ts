@@ -45,6 +45,37 @@ export interface AuditLogTable {
   at: Generated<Date>;
 }
 
+export interface EventsTable {
+  id: Generated<string>;
+  org_id: string;
+  slug: string;
+  title: string;
+  description: string | null;
+  venue_name: string | null;
+  venue_address: string | null;
+  cover_image_url: string | null;
+  starts_at: Date;
+  ends_at: Date | null;
+  timezone: string;
+  status: Generated<string>;
+  created_by: string;
+  created_at: Generated<Date>;
+  updated_at: Generated<Date>;
+}
+
+export interface TicketTypesTable {
+  id: Generated<string>;
+  event_id: string;
+  name: string;
+  price_cents: number;
+  currency: string;
+  capacity: number;
+  sales_start: Date | null;
+  sales_end: Date | null;
+  position: number;
+  created_at: Generated<Date>;
+}
+
 export interface SchemaMigrationsTable {
   name: string;
   applied_at: Generated<Date>;
@@ -56,5 +87,7 @@ export interface Database {
   memberships: MembershipsTable;
   platform_admins: PlatformAdminsTable;
   audit_log: AuditLogTable;
+  events: EventsTable;
+  ticket_types: TicketTypesTable;
   schema_migrations: SchemaMigrationsTable;
 }
