@@ -44,8 +44,14 @@ const jsonLd = {
     availability: 'https://schema.org/InStock',
   })),
 };
+// Escape angle brackets and ampersands to their \uXXXX forms so organizer-supplied text can't
+// terminate the JSON-LD block early with an injected closing tag — still valid JSON for crawlers.
+const jsonLdSafe = JSON.stringify(jsonLd)
+  .replace(/</g, '\\u003c')
+  .replace(/>/g, '\\u003e')
+  .replace(/&/g, '\\u0026');
 useHead({
-  script: [{ type: 'application/ld+json', innerHTML: JSON.stringify(jsonLd) }],
+  script: [{ type: 'application/ld+json', innerHTML: jsonLdSafe }],
 });
 </script>
 
