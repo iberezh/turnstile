@@ -23,5 +23,9 @@ publicEventRouter.get('/events/:slug', async (ctx) => {
     ctx.body = { error: 'not found' };
     return;
   }
-  ctx.body = { event, ticketTypes: await listTicketTypes(event.id) };
+  const ticketTypes = (await listTicketTypes(event.id)).map((t) => ({
+    ...t,
+    available: Math.max(t.capacity - t.reserved, 0),
+  }));
+  ctx.body = { event, ticketTypes };
 });

@@ -10,6 +10,7 @@ import { ticketTypeRouter } from './events/ticket-type-routes.js';
 import { API_PREFIX } from './http.js';
 import { memberRouter } from './orgs/member-routes.js';
 import { orgRouter } from './orgs/routes.js';
+import { reservationRouter } from './reservations/routes.js';
 
 const healthRouter = new Router({ prefix: API_PREFIX });
 healthRouter.get('/health', (ctx) => {
@@ -26,6 +27,7 @@ const routers = [
   eventRouter,
   ticketTypeRouter,
   publicEventRouter,
+  reservationRouter,
 ];
 
 export function createServer(): Koa {

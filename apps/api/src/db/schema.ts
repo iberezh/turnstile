@@ -70,9 +70,21 @@ export interface TicketTypesTable {
   price_cents: number;
   currency: string;
   capacity: number;
+  reserved: Generated<number>;
   sales_start: Date | null;
   sales_end: Date | null;
   position: number;
+  created_at: Generated<Date>;
+}
+
+export interface TicketHoldsTable {
+  id: Generated<string>;
+  hold_id: string;
+  ticket_type_id: string;
+  event_id: string;
+  quantity: number;
+  status: Generated<string>;
+  expires_at: Date;
   created_at: Generated<Date>;
 }
 
@@ -89,5 +101,6 @@ export interface Database {
   audit_log: AuditLogTable;
   events: EventsTable;
   ticket_types: TicketTypesTable;
+  ticket_holds: TicketHoldsTable;
   schema_migrations: SchemaMigrationsTable;
 }
