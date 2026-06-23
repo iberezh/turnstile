@@ -1,0 +1,7 @@
+branch=$(git symbolic-ref --short -q HEAD || echo main)
+regex='^(feat|fix|chore|refactor|docs|test|ci|build|perf)/[a-z0-9._-]+$'
+if [ "$branch" != "main" ] && ! echo "$branch" | grep -qE "$regex"; then
+  echo "✗ Branch '$branch' must match <prefix>/<kebab>, e.g. feat/auth-foundation."
+  exit 1
+fi
+pnpm lint

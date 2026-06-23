@@ -1,0 +1,27 @@
+{
+  "name": "turnstile",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "type-check": "pnpm -r type-check",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "test": "pnpm -r --if-present test",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.1.0",
+    "husky": "^9.1.7",
+    "typescript": "^5.6.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "@parcel/watcher"
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+regex='^(feat|fix|chore|refactor|docs|test|ci|build|perf|style)(\(.+\))?: .{1,}'
+if ! head -1 "$1" | grep -qE "$regex"; then
+  echo "✗ Commit message must follow Conventional Commits (e.g. 'feat: add login route')."
+  exit 1
+fi
