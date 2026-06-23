@@ -3,6 +3,8 @@ import { getPublishedEventBySlug } from '../events/repository.js';
 import { API_PREFIX } from '../http.js';
 import { getOrgConnect } from '../payments/connect-repository.js';
 import { payments } from '../payments/index.js';
+import { computeDiscountCents, promoRedeemable } from '../promos/discount.js';
+import { findPromoByCode } from '../promos/repository.js';
 import { fulfilOrder, loadHeldHold } from './repository.js';
 import { CheckoutSchema } from './schemas.js';
 
@@ -44,9 +46,25 @@ checkoutRouter.post('/events/:slug/checkout', async (ctx) => {
     return;
   }
 
-  const feeCents = Math.round(hold.amountCents * PLATFORM_TAKE_RATE);
+  // Optional promo: priced server-side. The redemption cap is re-checked atomically at fulfilment;
+  // this pre-flight validates the code and computes the discounted total + fee.
+  let discountCents = 0;
+  let promoCodeId: string | undefined;
+  if (parsed.data.promoCode) {
+    const promo = await findPromoByCode(event.id, parsed.data.promoCode);
+    if (!promo || !promoRedeemable(promo, Date.now())) {
+      ctx.status = 409;
+      ctx.body = { error: 'invalid promo code' };
+      return;
+    }
+    discountCents = computeDiscountCents(hold.amountCents, promo.discountType, promo.discountValue);
+    promoCodeId = promo.id;
+  }
+  const amountCents = hold.amountCents - discountCents;
+
+  const feeCents = Math.round(amountCents * PLATFORM_TAKE_RATE);
   const intent = await payments.createPaymentIntent({
-    amountCents: hold.amountCents,
+    amountCents,
     currency: hold.currency,
     destinationAccountId: connect.stripeAccountId,
     applicationFeeCents: feeCents,
@@ -58,7 +76,8 @@ checkoutRouter.post('/events/:slug/checkout', async (ctx) => {
       status: 'requires_payment',
       paymentIntentId: intent.id,
       clientSecret: intent.clientSecret,
-      amountCents: hold.amountCents,
+      amountCents,
+      discountCents,
       feeCents,
     };
     return;
@@ -70,8 +89,10 @@ checkoutRouter.post('/events/:slug/checkout', async (ctx) => {
     orgId: event.orgId,
     buyerEmail: parsed.data.buyerEmail,
     paymentIntentId: intent.id,
-    amountCents: hold.amountCents,
+    amountCents,
     feeCents,
+    discountCents,
+    promoCodeId,
     currency: hold.currency,
     lines: hold.lines,
   });
@@ -84,7 +105,8 @@ checkoutRouter.post('/events/:slug/checkout', async (ctx) => {
   ctx.body = {
     status: 'paid',
     orderId: result.orderId,
-    amountCents: hold.amountCents,
+    amountCents,
+    discountCents,
     feeCents,
     currency: hold.currency,
     tickets: result.ticketTokens,

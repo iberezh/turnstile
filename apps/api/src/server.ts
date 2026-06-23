@@ -14,6 +14,7 @@ import { orderRouter } from './orders/routes.js';
 import { memberRouter } from './orgs/member-routes.js';
 import { orgRouter } from './orgs/routes.js';
 import { connectRouter } from './payments/connect-routes.js';
+import { promoRouter } from './promos/routes.js';
 import { reservationRouter } from './reservations/routes.js';
 
 const healthRouter = new Router({ prefix: API_PREFIX });
@@ -36,6 +37,7 @@ const routers = [
   checkoutRouter,
   checkinRouter,
   orderRouter,
+  promoRouter,
 ];
 
 export function createServer(): Koa {
