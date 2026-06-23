@@ -3,6 +3,7 @@ import Router from '@koa/router';
 import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
 import { authRouter } from './auth/routes.js';
+import { checkoutRouter } from './checkout/routes.js';
 import { config } from './config.js';
 import { publicEventRouter } from './events/public-routes.js';
 import { eventRouter } from './events/routes.js';
@@ -30,6 +31,7 @@ const routers = [
   publicEventRouter,
   reservationRouter,
   connectRouter,
+  checkoutRouter,
 ];
 
 export function createServer(): Koa {

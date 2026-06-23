@@ -4,6 +4,22 @@ export interface AccountStatus {
   chargesEnabled: boolean;
 }
 
+export interface CreateIntentInput {
+  amountCents: number;
+  currency: string;
+  destinationAccountId: string;
+  applicationFeeCents: number;
+  metadata: Record<string, string>;
+}
+
+export interface PaymentIntentResult {
+  id: string;
+  clientSecret: string | null;
+  // 'succeeded' (mock auto-confirms) → fulfil now; otherwise the client confirms and a
+  // webhook fulfils (live).
+  status: 'succeeded' | 'requires_payment_method';
+}
+
 export interface PaymentsProvider {
   // 'live' uses Stripe; 'mock' is the keyless fallback (onboarding is simulated).
   readonly mode: 'live' | 'mock';
@@ -13,4 +29,6 @@ export interface PaymentsProvider {
   createAccountLink(accountId: string, returnUrl: string, refreshUrl: string): Promise<string>;
   // Live status from the provider (used to refresh the cached charges_enabled flag).
   getAccountStatus(accountId: string): Promise<AccountStatus>;
+  // Destination charge: funds go to the connected account minus the application (take-rate) fee.
+  createPaymentIntent(input: CreateIntentInput): Promise<PaymentIntentResult>;
 }
