@@ -16,6 +16,8 @@ export interface OrganizationsTable {
   slug: string;
   name: string;
   created_by: string;
+  stripe_account_id: string | null;
+  charges_enabled: Generated<boolean>;
   created_at: Generated<Date>;
 }
 
