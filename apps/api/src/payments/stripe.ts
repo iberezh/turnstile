@@ -55,4 +55,12 @@ export class StripePayments implements PaymentsProvider {
       status: pi.status === 'succeeded' ? 'succeeded' : 'requires_payment_method',
     };
   }
+
+  async refund(paymentIntentId: string): Promise<void> {
+    await this.stripe.refunds.create({
+      payment_intent: paymentIntentId,
+      refund_application_fee: true,
+      reverse_transfer: true,
+    });
+  }
 }

@@ -31,4 +31,6 @@ export interface PaymentsProvider {
   getAccountStatus(accountId: string): Promise<AccountStatus>;
   // Destination charge: funds go to the connected account minus the application (take-rate) fee.
   createPaymentIntent(input: CreateIntentInput): Promise<PaymentIntentResult>;
+  // Full refund of that charge, reversing the transfer to the org and the application fee.
+  refund(paymentIntentId: string): Promise<void>;
 }

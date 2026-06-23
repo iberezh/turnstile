@@ -30,4 +30,8 @@ export class MockPayments implements PaymentsProvider {
     const id = `pi_mock_${randomUUID().replace(/-/g, '').slice(0, 16)}`;
     return { id, clientSecret: `${id}_secret_mock`, status: 'succeeded' };
   }
+
+  async refund(_paymentIntentId: string): Promise<void> {
+    // No-op; the order/tickets/inventory are reverted by the caller.
+  }
 }

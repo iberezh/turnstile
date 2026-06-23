@@ -10,6 +10,7 @@ import { publicEventRouter } from './events/public-routes.js';
 import { eventRouter } from './events/routes.js';
 import { ticketTypeRouter } from './events/ticket-type-routes.js';
 import { API_PREFIX } from './http.js';
+import { orderRouter } from './orders/routes.js';
 import { memberRouter } from './orgs/member-routes.js';
 import { orgRouter } from './orgs/routes.js';
 import { connectRouter } from './payments/connect-routes.js';
@@ -34,6 +35,7 @@ const routers = [
   connectRouter,
   checkoutRouter,
   checkinRouter,
+  orderRouter,
 ];
 
 export function createServer(): Koa {
