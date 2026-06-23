@@ -11,6 +11,40 @@ export interface UsersTable {
   created_at: Generated<Date>;
 }
 
+export interface OrganizationsTable {
+  id: Generated<string>;
+  slug: string;
+  name: string;
+  created_by: string;
+  created_at: Generated<Date>;
+}
+
+export interface MembershipsTable {
+  id: Generated<string>;
+  org_id: string;
+  user_id: string;
+  role: string;
+  created_at: Generated<Date>;
+}
+
+export interface PlatformAdminsTable {
+  user_id: string;
+  platform_role: string;
+  created_at: Generated<Date>;
+}
+
+export interface AuditLogTable {
+  id: Generated<string>;
+  actor_id: string | null;
+  scope: string;
+  org_id: string | null;
+  action: string;
+  target: string;
+  before: unknown | null; // jsonb
+  after: unknown | null; // jsonb
+  at: Generated<Date>;
+}
+
 export interface SchemaMigrationsTable {
   name: string;
   applied_at: Generated<Date>;
@@ -18,5 +52,9 @@ export interface SchemaMigrationsTable {
 
 export interface Database {
   users: UsersTable;
+  organizations: OrganizationsTable;
+  memberships: MembershipsTable;
+  platform_admins: PlatformAdminsTable;
+  audit_log: AuditLogTable;
   schema_migrations: SchemaMigrationsTable;
 }

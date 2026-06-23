@@ -1,4 +1,5 @@
 import Router from '@koa/router';
+import { API_PREFIX } from '../http.js';
 import { clearSessionCookie, setSessionCookie } from './cookie.js';
 import { requireAuth } from './middleware.js';
 import { DUMMY_HASH, hashPassword, verifyPassword } from './password.js';
@@ -6,7 +7,7 @@ import { createUser, findUserByEmail, findUserById } from './repository.js';
 import { LoginSchema, RegisterSchema } from './schemas.js';
 import { signSession } from './tokens.js';
 
-export const authRouter = new Router({ prefix: '/auth' });
+export const authRouter = new Router({ prefix: `${API_PREFIX}/auth` });
 
 authRouter.post('/register', async (ctx) => {
   const parsed = RegisterSchema.safeParse(ctx.request.body);
