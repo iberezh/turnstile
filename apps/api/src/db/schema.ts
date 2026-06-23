@@ -18,6 +18,8 @@ export interface OrganizationsTable {
   created_by: string;
   stripe_account_id: string | null;
   charges_enabled: Generated<boolean>;
+  // Set by the platform control plane (separate service); non-null = hidden from the marketplace.
+  suspended_at: Date | null;
   created_at: Generated<Date>;
 }
 
@@ -26,12 +28,6 @@ export interface MembershipsTable {
   org_id: string;
   user_id: string;
   role: string;
-  created_at: Generated<Date>;
-}
-
-export interface PlatformAdminsTable {
-  user_id: string;
-  platform_role: string;
   created_at: Generated<Date>;
 }
 
@@ -60,6 +56,9 @@ export interface EventsTable {
   ends_at: Date | null;
   timezone: string;
   status: Generated<string>;
+  // Platform moderation: 'ok' (default) | 'removed'. Anything but 'ok' is hidden from discovery.
+  moderation_status: Generated<string>;
+  moderated_at: Date | null;
   created_by: string;
   created_at: Generated<Date>;
   updated_at: Generated<Date>;
@@ -125,7 +124,6 @@ export interface Database {
   users: UsersTable;
   organizations: OrganizationsTable;
   memberships: MembershipsTable;
-  platform_admins: PlatformAdminsTable;
   audit_log: AuditLogTable;
   events: EventsTable;
   ticket_types: TicketTypesTable;
