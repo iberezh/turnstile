@@ -1,3 +1,4 @@
+import { sql } from 'kysely';
 import { db } from '../db/client.js';
 import { signTicket } from '../tickets/qr.js';
 
@@ -53,6 +54,8 @@ export interface FulfilInput {
   paymentIntentId: string;
   amountCents: number;
   feeCents: number;
+  discountCents: number;
+  promoCodeId?: string | undefined;
   currency: string;
   lines: { ticketTypeId: string; quantity: number }[];
 }
@@ -82,6 +85,24 @@ export async function fulfilOrder(input: FulfilInput): Promise<FulfilResult | nu
       .execute();
     if (held.length === 0) return null;
 
+    // Atomically claim one redemption under the cap — same guard as ticket inventory. If the code
+    // was deactivated or hit its limit since pricing, this matches 0 rows and the order is voided.
+    if (input.promoCodeId) {
+      const redeemed = await trx
+        .updateTable('promo_codes')
+        .set({ redeemed_count: sql<number>`redeemed_count + 1` })
+        .where('id', '=', input.promoCodeId)
+        .where('active', '=', true)
+        .where((eb) =>
+          eb.or([
+            eb('max_redemptions', 'is', null),
+            eb('redeemed_count', '<', eb.ref('max_redemptions')),
+          ]),
+        )
+        .executeTakeFirst();
+      if (Number(redeemed.numUpdatedRows) === 0) return null;
+    }
+
     const order = await trx
       .insertInto('orders')
       .values({
@@ -92,6 +113,8 @@ export async function fulfilOrder(input: FulfilInput): Promise<FulfilResult | nu
         buyer_email: input.buyerEmail,
         amount_cents: input.amountCents,
         fee_cents: input.feeCents,
+        discount_cents: input.discountCents,
+        promo_code_id: input.promoCodeId ?? null,
         currency: input.currency,
       })
       .returning('id')

@@ -89,6 +89,20 @@ export interface TicketHoldsTable {
   created_at: Generated<Date>;
 }
 
+export interface PromoCodesTable {
+  id: Generated<string>;
+  event_id: string;
+  code: string;
+  discount_type: string;
+  discount_value: number;
+  max_redemptions: number | null;
+  redeemed_count: Generated<number>;
+  starts_at: Date | null;
+  ends_at: Date | null;
+  active: Generated<boolean>;
+  created_at: Generated<Date>;
+}
+
 export interface OrdersTable {
   id: Generated<string>;
   event_id: string;
@@ -98,6 +112,8 @@ export interface OrdersTable {
   buyer_email: string;
   amount_cents: number;
   fee_cents: number;
+  discount_cents: Generated<number>;
+  promo_code_id: string | null;
   currency: string;
   status: Generated<string>;
   refunded_at: Date | null;
@@ -128,6 +144,7 @@ export interface Database {
   events: EventsTable;
   ticket_types: TicketTypesTable;
   ticket_holds: TicketHoldsTable;
+  promo_codes: PromoCodesTable;
   orders: OrdersTable;
   tickets: TicketsTable;
   schema_migrations: SchemaMigrationsTable;
