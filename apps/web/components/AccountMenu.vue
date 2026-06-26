@@ -10,7 +10,9 @@ function onDocClick(e: MouseEvent): void {
   if (root.value && !root.value.contains(e.target as Node)) open.value = false;
 }
 onMounted(() => {
-  refresh();
+  // The header remounts this when the bar/pill swap on scroll; the session is shared state, so only
+  // fetch it the first time it's unknown.
+  if (!user.value) refresh();
   document.addEventListener('click', onDocClick);
 });
 onBeforeUnmount(() => document.removeEventListener('click', onDocClick));
