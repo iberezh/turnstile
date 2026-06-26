@@ -18,11 +18,11 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll));
     :class="scrolled ? 'px-4 pt-3' : 'px-0 pt-0'"
   >
     <div
-      class="flex items-center justify-between gap-3 transition-all duration-300"
+      class="flex items-center transition-all duration-300"
       :class="
         scrolled
-          ? 'w-full max-w-4xl rounded-full border border-white/10 bg-foreground px-4 py-2 text-background shadow-xl shadow-foreground/20'
-          : 'container h-16'
+          ? 'w-auto gap-5 rounded-full border border-white/10 bg-foreground px-5 py-2 text-background shadow-xl shadow-foreground/20'
+          : 'container h-16 w-full justify-between'
       "
     >
       <NuxtLink to="/" aria-label="Turnstile home" class="inline-flex items-center gap-2.5">
