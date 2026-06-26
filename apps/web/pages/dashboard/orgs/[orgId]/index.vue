@@ -23,16 +23,32 @@ onMounted(load);
 const title = ref('');
 const startsAt = ref('');
 const venueName = ref('');
+const venueAddress = ref('');
+const lat = ref<number | null>(null);
+const lng = ref<number | null>(null);
 const creating = ref(false);
 const error = ref('');
+
+function onPick(p: { lat: number; lng: number; label?: string }) {
+  lat.value = p.lat;
+  lng.value = p.lng;
+  if (p.label && !venueAddress.value) venueAddress.value = p.label;
+}
 
 async function createEvent() {
   error.value = '';
   creating.value = true;
   try {
+    const geo = lat.value !== null && lng.value !== null ? { lat: lat.value, lng: lng.value } : {};
     const ev = await api<EventDto>(`/orgs/${orgId}/events`, {
       method: 'POST',
-      body: { title: title.value, startsAt: startsAt.value, venueName: venueName.value || undefined },
+      body: {
+        title: title.value,
+        startsAt: startsAt.value,
+        venueName: venueName.value || undefined,
+        venueAddress: venueAddress.value || undefined,
+        ...geo,
+      },
     });
     await navigateTo(`/dashboard/orgs/${orgId}/events/${ev.id}`);
   } catch {
@@ -84,6 +100,10 @@ useSeoMeta({ title: 'Events' });
           <div class="space-y-1.5">
             <Label for="venue">Venue (optional)</Label>
             <Input id="venue" v-model="venueName" />
+          </div>
+          <div class="space-y-1.5">
+            <Label>Location (optional)</Label>
+            <LocationPicker @pick="onPick" />
           </div>
           <p v-if="error" class="text-sm text-destructive">{{ error }}</p>
           <Button type="submit" data-testid="create-event" :disabled="creating">

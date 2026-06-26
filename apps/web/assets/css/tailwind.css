@@ -86,3 +86,16 @@
     background-size: 30px 30px;
   }
 }
+
+/* Map pin for the Leaflet location picker. Plain CSS (not @layer) — the class only appears in a
+   JS-built divIcon, so it must not be subject to Tailwind's content purge. */
+.ts-pin span {
+  display: block;
+  width: 20px;
+  height: 20px;
+  background: hsl(var(--primary));
+  border: 2px solid #fff;
+  border-radius: 9999px 9999px 2px 9999px;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.4);
+  transform: rotate(45deg);
+}

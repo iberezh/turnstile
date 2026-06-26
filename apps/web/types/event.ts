@@ -11,7 +11,14 @@ export interface EventDto {
   startsAt: string;
   endsAt: string | null;
   timezone: string;
+  lat: number | null;
+  lng: number | null;
   status: string;
+}
+
+// A published event with its great-circle distance from the query point (from GET /events/near).
+export interface NearbyEventDto extends EventDto {
+  distanceKm: number;
 }
 
 export interface TicketTypeDto {
