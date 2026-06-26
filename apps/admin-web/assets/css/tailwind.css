@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* shadcn-vue design tokens. The app is dark-only for now, so the dark palette is the default
+   :root — this keeps SSR (marketplace) and CSR (dashboard) routes consistent without depending on
+   a runtime html class. Brand accent is violet to match Turnstile. */
+@layer base {
+  :root {
+    --background: 222 24% 7%;
+    --foreground: 220 20% 96%;
+    --card: 222 19% 11%;
+    --card-foreground: 220 20% 96%;
+    --primary: 256 100% 68%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 222 16% 16%;
+    --secondary-foreground: 220 20% 96%;
+    --muted: 222 16% 16%;
+    --muted-foreground: 220 12% 65%;
+    --accent: 222 16% 16%;
+    --accent-foreground: 220 20% 96%;
+    --destructive: 0 63% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 223 16% 20%;
+    --input: 223 16% 20%;
+    --ring: 256 100% 68%;
+    --radius: 0.65rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
