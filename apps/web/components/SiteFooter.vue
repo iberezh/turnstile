@@ -4,7 +4,7 @@ import { Github } from 'lucide-vue-next';
 
 <template>
   <div class="container">
-    <div class="grid gap-12 py-16 md:grid-cols-[1.5fr_1fr_1fr] lg:py-20">
+    <div class="grid gap-12 py-16 md:grid-cols-[1.5fr_1fr_1fr_1fr] lg:py-20">
       <div>
         <span class="inline-flex items-center gap-2.5 text-white">
           <ChevronMark class="h-7 w-7" />
@@ -40,7 +40,18 @@ import { Github } from 'lucide-vue-next';
         </h3>
         <ul class="mt-4 space-y-3 text-sm">
           <li><NuxtLink to="/dashboard" class="text-white/75 transition-colors hover:text-white">Sell tickets</NuxtLink></li>
+          <li><NuxtLink to="/trusted-by" class="text-white/75 transition-colors hover:text-white">Trusted by</NuxtLink></li>
           <li><NuxtLink to="/login" class="text-white/75 transition-colors hover:text-white">Sign in</NuxtLink></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="font-display text-xs font-semibold uppercase tracking-[0.18em] text-white/45">
+          Company
+        </h3>
+        <ul class="mt-4 space-y-3 text-sm">
+          <li><NuxtLink to="/about" class="text-white/75 transition-colors hover:text-white">About</NuxtLink></li>
+          <li><NuxtLink to="/contact" class="text-white/75 transition-colors hover:text-white">Contact us</NuxtLink></li>
         </ul>
       </div>
     </div>

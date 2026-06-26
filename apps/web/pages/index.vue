@@ -56,6 +56,26 @@ useSeoMeta({
       </div>
     </section>
 
+    <!-- Trusted by strip -->
+    <section class="border-b border-border/70 bg-secondary/30">
+      <div class="container flex flex-wrap items-center justify-center gap-x-8 gap-y-3 py-6">
+        <NuxtLink
+          to="/trusted-by"
+          class="font-display text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground"
+        >
+          Trusted by
+        </NuxtLink>
+        <NuxtLink
+          v-for="c in featuredCustomers.slice(0, 6)"
+          :key="c.name"
+          to="/trusted-by"
+          class="font-display text-sm font-semibold text-foreground/55 transition-colors hover:text-foreground"
+        >
+          {{ c.name }}
+        </NuxtLink>
+      </div>
+    </section>
+
     <!-- Near you -->
     <ClientOnly>
       <NearbyEvents />
