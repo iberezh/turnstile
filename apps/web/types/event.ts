@@ -27,3 +27,23 @@ export interface EventDetailDto {
   event: EventDto;
   ticketTypes: TicketTypeDto[];
 }
+
+export interface TierBreakdown {
+  ticketTypeId: string;
+  name: string;
+  capacity: number;
+  reserved: number;
+  sold: number;
+}
+export interface SalesDay {
+  day: string;
+  orders: number;
+  grossCents: number;
+}
+export interface EventAnalytics {
+  ticketsIssued: number;
+  ticketsCheckedIn: number;
+  checkinRate: number;
+  byTicketType: TierBreakdown[];
+  salesByDay: SalesDay[];
+}
