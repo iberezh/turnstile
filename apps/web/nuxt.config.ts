@@ -3,18 +3,31 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-01',
   devtools: { enabled: true },
   devServer: { port: 3003 },
-  modules: ['@nuxtjs/tailwindcss', 'shadcn-nuxt'],
+  modules: ['@nuxtjs/tailwindcss', 'shadcn-nuxt', '@nuxt/fonts'],
   css: ['~/assets/css/tailwind.css'],
+  // Self-hosted (downloaded + cached) brand type.
+  fonts: {
+    families: [
+      { name: 'Poppins', provider: 'google' },
+      { name: 'Hind', provider: 'google' },
+    ],
+  },
   // The dashboard is authenticated and client-rendered (the API session cookie isn't available to
   // SSR); public marketplace pages stay server-rendered for SEO.
   routeRules: { '/dashboard/**': { ssr: false } },
-  // shadcn-vue components live in components/ui and are used without a prefix (<Button/>).
   shadcn: { prefix: '', componentDir: '~/components/ui' },
   app: {
     head: {
-      // Default to the dark theme (shadcn .dark token set).
-      htmlAttrs: { lang: 'en', class: 'dark' },
+      htmlAttrs: { lang: 'en' },
       titleTemplate: '%s · Turnstile',
+      // Apply a saved dark-theme choice before paint to avoid a flash. Light is the default.
+      script: [
+        {
+          innerHTML:
+            "try{if(localStorage.getItem('ts-theme')==='dark')document.documentElement.classList.add('dark')}catch(e){}",
+          tagPosition: 'head',
+        },
+      ],
     },
   },
   runtimeConfig: {

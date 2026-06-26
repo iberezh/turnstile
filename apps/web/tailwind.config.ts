@@ -1,8 +1,8 @@
 import type { Config } from 'tailwindcss';
 import animate from 'tailwindcss-animate';
 
-// shadcn-vue (Tailwind v3) theme: semantic colors resolve to CSS variables defined in
-// assets/css/tailwind.css, so the whole palette is themeable from one place.
+// shadcn-vue (Tailwind v3) theme. Semantic colors resolve to CSS variables defined in
+// assets/css/tailwind.css, which carries both the light and dark token sets.
 export default {
   darkMode: 'class',
   content: [
@@ -13,9 +13,17 @@ export default {
     './error.vue',
   ],
   theme: {
-    container: { center: true, padding: '1.25rem', screens: { '2xl': '1100px' } },
+    container: { center: true, padding: '1.25rem', screens: { '2xl': '1180px' } },
     extend: {
+      fontFamily: {
+        display: ['Poppins', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['Hind', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
       colors: {
+        // Brand accents beyond the core semantic set.
+        sun: { DEFAULT: 'hsl(var(--sun))', foreground: 'hsl(var(--sun-foreground))' },
+        success: { DEFAULT: 'hsl(var(--success))', foreground: 'hsl(var(--success-foreground))' },
+        coral: 'hsl(var(--coral))',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
