@@ -49,13 +49,24 @@ useSeoMeta({ title: 'Events' });
 
 <template>
   <div class="space-y-8">
-    <div class="flex items-center justify-between">
+    <div class="flex flex-wrap items-end justify-between gap-3">
       <div>
         <NuxtLink to="/dashboard" class="text-sm text-muted-foreground hover:underline">
           ← Organizations
         </NuxtLink>
         <h1 class="mt-1 text-2xl font-bold tracking-tight">Events</h1>
       </div>
+      <nav class="flex items-center gap-2">
+        <NuxtLink :to="`/dashboard/orgs/${orgId}/finance`">
+          <Button variant="outline" size="sm">Finance</Button>
+        </NuxtLink>
+        <NuxtLink :to="`/dashboard/orgs/${orgId}/partners`">
+          <Button variant="outline" size="sm">Partners</Button>
+        </NuxtLink>
+        <NuxtLink :to="`/dashboard/orgs/${orgId}/loyalty`">
+          <Button variant="outline" size="sm">Loyalty</Button>
+        </NuxtLink>
+      </nav>
     </div>
 
     <Card class="max-w-lg">
