@@ -10,11 +10,6 @@ onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true });
 });
 onBeforeUnmount(() => window.removeEventListener('scroll', onScroll));
-
-const links = [
-  { label: "What's on", to: '/#whats-on' },
-  { label: 'Organizers', to: '/dashboard' },
-];
 </script>
 
 <template>
@@ -26,7 +21,7 @@ const links = [
       class="flex items-center justify-between gap-3 transition-all duration-300"
       :class="
         scrolled
-          ? 'w-full max-w-3xl rounded-full border border-white/10 bg-foreground px-4 py-2 text-background shadow-xl shadow-foreground/20'
+          ? 'w-full max-w-4xl rounded-full border border-white/10 bg-foreground px-4 py-2 text-background shadow-xl shadow-foreground/20'
           : 'container h-16'
       "
     >
@@ -42,7 +37,7 @@ const links = [
 
       <nav class="flex items-center gap-1 text-sm font-medium sm:gap-2">
         <NuxtLink
-          v-for="l in links"
+          v-for="l in publicNavLinks"
           :key="l.to"
           :to="l.to"
           class="hidden rounded-md px-3 py-2 transition-colors sm:block"
@@ -52,13 +47,15 @@ const links = [
         </NuxtLink>
         <NuxtLink
           to="/dashboard"
-          class="rounded-full px-4 py-2 font-semibold transition-colors"
+          class="hidden rounded-full px-4 py-2 font-semibold transition-colors sm:block"
           :class="scrolled ? 'bg-sun text-sun-foreground' : 'bg-primary text-primary-foreground hover:bg-primary/90'"
         >
           Sell tickets
         </NuxtLink>
+        <SiteSearch :scrolled="scrolled" />
         <AccountMenu :scrolled="scrolled" />
         <ThemeToggle />
+        <MobileNav :scrolled="scrolled" />
       </nav>
     </div>
   </div>
