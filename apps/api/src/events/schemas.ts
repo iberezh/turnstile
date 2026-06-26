@@ -39,6 +39,17 @@ export const TicketTypeSchema = z.object({
 
 export const UpdateTicketTypeSchema = TicketTypeSchema.partial();
 
+// Public marketplace discovery: free-text title search + date-range filter + pagination.
+export const DiscoverySchema = z.object({
+  q: z.string().min(1).max(100).optional(),
+  from: z.coerce.date().optional(),
+  to: z.coerce.date().optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+  offset: z.coerce.number().int().min(0).default(0),
+});
+
+export type DiscoveryInput = z.infer<typeof DiscoverySchema>;
+
 export type CreateEventInput = z.infer<typeof CreateEventSchema>;
 export type UpdateEventInput = z.infer<typeof UpdateEventSchema>;
 export type TicketTypeInput = z.infer<typeof TicketTypeSchema>;
