@@ -2,29 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
-/* shadcn-vue design tokens. The app is dark-only for now, so the dark palette is the default
-   :root — this keeps SSR (marketplace) and CSR (dashboard) routes consistent without depending on
-   a runtime html class. Brand accent is violet to match Turnstile. */
+/* Turnstile brand tokens — one palette, two themes. Light is the default (bright); .dark on <html>
+   swaps the surface/ink and lifts the brand blue. Indigo = brand, sunglow = accent, coral = danger,
+   a tuned green = available/paid status, dusk blue-grays = neutral, snow = ground. */
 @layer base {
   :root {
-    --background: 222 24% 7%;
-    --foreground: 220 20% 96%;
-    --card: 222 19% 11%;
-    --card-foreground: 220 20% 96%;
-    --primary: 256 100% 68%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 222 16% 16%;
-    --secondary-foreground: 220 20% 96%;
-    --muted: 222 16% 16%;
-    --muted-foreground: 220 12% 65%;
-    --accent: 222 16% 16%;
-    --accent-foreground: 220 20% 96%;
-    --destructive: 0 63% 50%;
+    --background: 300 100% 99%;
+    --foreground: 229 28% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 229 28% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 229 28% 10%;
+    --primary: 229 28% 43%;
+    --primary-foreground: 300 100% 99%;
+    --secondary: 208 52% 91%;
+    --secondary-foreground: 229 27% 22%;
+    --muted: 231 38% 96%;
+    --muted-foreground: 229 22% 48%;
+    --accent: 208 52% 92%;
+    --accent-foreground: 229 27% 22%;
+    --destructive: 5 74% 48%;
     --destructive-foreground: 0 0% 100%;
-    --border: 223 16% 20%;
-    --input: 223 16% 20%;
-    --ring: 256 100% 68%;
-    --radius: 0.65rem;
+    --border: 228 28% 85%;
+    --input: 228 28% 85%;
+    --ring: 229 28% 43%;
+    --radius: 0.7rem;
+    --sun: 50 100% 65%;
+    --sun-foreground: 229 28% 12%;
+    --success: 158 68% 35%;
+    --success-foreground: 0 0% 100%;
+    --coral: 4 99% 66%;
+    --footer: 229 30% 9%;
+    --footer-foreground: 231 30% 92%;
+  }
+
+  .dark {
+    --background: 229 28% 7%;
+    --foreground: 231 38% 95%;
+    --card: 229 28% 10%;
+    --card-foreground: 231 38% 95%;
+    --popover: 229 28% 10%;
+    --popover-foreground: 231 38% 95%;
+    --primary: 208 56% 70%;
+    --primary-foreground: 229 28% 8%;
+    --secondary: 229 27% 20%;
+    --secondary-foreground: 231 38% 95%;
+    --muted: 229 27% 18%;
+    --muted-foreground: 228 22% 70%;
+    --accent: 229 27% 22%;
+    --accent-foreground: 231 38% 95%;
+    --destructive: 5 85% 62%;
+    --destructive-foreground: 229 28% 8%;
+    --border: 229 27% 21%;
+    --input: 229 27% 23%;
+    --ring: 208 56% 70%;
+    --sun: 50 100% 65%;
+    --sun-foreground: 229 28% 12%;
+    --success: 158 62% 52%;
+    --success-foreground: 229 28% 8%;
+    --coral: 6 98% 70%;
+    --footer: 229 40% 4%;
+    --footer-foreground: 231 30% 88%;
   }
 
   * {
@@ -32,5 +70,19 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
+    font-family: 'Hind', ui-sans-serif, system-ui, sans-serif;
+  }
+  ::selection {
+    background: hsl(var(--primary) / 0.18);
+  }
+}
+
+@layer components {
+  /* faint indigo grid for hero atmosphere (subtle in light, lower-contrast in dark) */
+  .bg-grid {
+    background-image:
+      linear-gradient(hsl(var(--primary) / 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--primary) / 0.06) 1px, transparent 1px);
+    background-size: 30px 30px;
   }
 }

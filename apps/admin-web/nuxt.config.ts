@@ -5,13 +5,26 @@ export default defineNuxtConfig({
   ssr: false,
   devtools: { enabled: true },
   devServer: { port: 3004 },
-  modules: ['@nuxtjs/tailwindcss', 'shadcn-nuxt'],
+  modules: ['@nuxtjs/tailwindcss', 'shadcn-nuxt', '@nuxt/fonts'],
   css: ['~/assets/css/tailwind.css'],
+  fonts: {
+    families: [
+      { name: 'Poppins', provider: 'google' },
+      { name: 'Hind', provider: 'google' },
+    ],
+  },
   shadcn: { prefix: '', componentDir: '~/components/ui' },
   app: {
     head: {
       htmlAttrs: { lang: 'en' },
       titleTemplate: '%s · Turnstile Admin',
+      script: [
+        {
+          innerHTML:
+            "try{if(localStorage.getItem('ts-theme')==='dark')document.documentElement.classList.add('dark')}catch(e){}",
+          tagPosition: 'head',
+        },
+      ],
     },
   },
   runtimeConfig: {
