@@ -56,7 +56,7 @@ useHead({
 </script>
 
 <template>
-  <article class="container max-w-3xl py-12">
+  <article class="container max-w-3xl pb-12 pt-24">
     <NuxtLink
       to="/"
       class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
