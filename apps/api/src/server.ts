@@ -2,6 +2,7 @@ import cors from '@koa/cors';
 import Router from '@koa/router';
 import Koa from 'koa';
 import bodyParser from 'koa-bodyparser';
+import { accountRouter } from './account/routes.js';
 import { analyticsRouter } from './analytics/routes.js';
 import { authRouter } from './auth/routes.js';
 import { checkinRouter } from './checkin/routes.js';
@@ -46,6 +47,7 @@ const routers = [
   loyaltyRouter,
   partnerRouter,
   analyticsRouter,
+  accountRouter,
 ];
 
 export function createServer(): Koa {

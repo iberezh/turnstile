@@ -145,6 +145,7 @@ export interface OrdersTable {
   points_earned: Generated<number>;
   points_redeemed: Generated<number>;
   partner_id: string | null;
+  user_id: string | null;
   currency: string;
   status: Generated<string>;
   refunded_at: Date | null;
