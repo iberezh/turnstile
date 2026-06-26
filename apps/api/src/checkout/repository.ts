@@ -1,6 +1,6 @@
 import { sql } from 'kysely';
 import { db } from '../db/client.js';
-import { creditPoints, debitPoints } from '../loyalty/repository.js';
+import { creditPoints } from '../loyalty/repository.js';
 import { signTicket } from '../tickets/qr.js';
 
 export interface CheckoutLine {
@@ -57,7 +57,6 @@ export interface FulfilInput {
   feeCents: number;
   discountCents: number;
   promoCodeId?: string | undefined;
-  redeemPoints: number;
   pointsEarned: number;
   currency: string;
   lines: { ticketTypeId: string; quantity: number }[];
@@ -106,7 +105,6 @@ export async function fulfilOrder(input: FulfilInput): Promise<FulfilResult | nu
           discount_cents: input.discountCents,
           promo_code_id: input.promoCodeId ?? null,
           points_earned: input.pointsEarned,
-          points_redeemed: input.redeemPoints,
           currency: input.currency,
         })
         .returning('id')
@@ -128,19 +126,6 @@ export async function fulfilOrder(input: FulfilInput): Promise<FulfilResult | nu
           )
           .executeTakeFirst();
         if (Number(redeemed.numUpdatedRows) === 0) throw new Unfulfillable();
-      }
-
-      // Spend loyalty points atomically (balance guard); throw to roll everything back if short.
-      if (input.redeemPoints > 0) {
-        const ok = await debitPoints(
-          trx,
-          input.orgId,
-          input.buyerEmail,
-          order.id,
-          input.redeemPoints,
-          'redeem',
-        );
-        if (!ok) throw new Unfulfillable();
       }
 
       const ticketTokens: string[] = [];
