@@ -9,7 +9,7 @@ onMounted(sync);
   <button
     type="button"
     aria-label="Toggle light or dark theme"
-    class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+    class="inline-flex h-9 w-9 items-center justify-center rounded-md opacity-60 transition-opacity hover:opacity-100"
     @click="toggle"
   >
     <ClientOnly>
