@@ -30,7 +30,7 @@ onBeforeUnmount(() => window.removeEventListener('resize', sync));
     <footer
       ref="footer"
       data-footer
-      style="background-color: hsl(229 30% 9%); color: rgba(255, 255, 255, 0.85)"
+      style="background-color: hsl(var(--footer)); color: hsl(var(--footer-foreground) / 0.82)"
       :class="reveal ? 'fixed inset-x-0 bottom-0 z-0' : 'relative z-10'"
     >
       <SiteFooter />

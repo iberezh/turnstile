@@ -32,6 +32,8 @@
     --success: 158 68% 35%;
     --success-foreground: 0 0% 100%;
     --coral: 4 99% 66%;
+    --footer: 229 30% 9%;
+    --footer-foreground: 231 30% 92%;
   }
 
   .dark {
@@ -59,6 +61,8 @@
     --success: 158 62% 52%;
     --success-foreground: 229 28% 8%;
     --coral: 6 98% 70%;
+    --footer: 229 40% 4%;
+    --footer-foreground: 231 30% 88%;
   }
 
   * {
