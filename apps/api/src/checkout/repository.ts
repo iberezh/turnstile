@@ -58,6 +58,7 @@ export interface FulfilInput {
   discountCents: number;
   promoCodeId?: string | undefined;
   pointsEarned: number;
+  partnerId?: string | undefined;
   currency: string;
   lines: { ticketTypeId: string; quantity: number }[];
 }
@@ -105,6 +106,7 @@ export async function fulfilOrder(input: FulfilInput): Promise<FulfilResult | nu
           discount_cents: input.discountCents,
           promo_code_id: input.promoCodeId ?? null,
           points_earned: input.pointsEarned,
+          partner_id: input.partnerId ?? null,
           currency: input.currency,
         })
         .returning('id')

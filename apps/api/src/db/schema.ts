@@ -121,6 +121,16 @@ export interface LoyaltyLedgerTable {
   created_at: Generated<Date>;
 }
 
+export interface PartnersTable {
+  id: Generated<string>;
+  org_id: string;
+  code: string;
+  name: string;
+  commission_bps: Generated<number>;
+  active: Generated<boolean>;
+  created_at: Generated<Date>;
+}
+
 export interface OrdersTable {
   id: Generated<string>;
   event_id: string;
@@ -134,6 +144,7 @@ export interface OrdersTable {
   promo_code_id: string | null;
   points_earned: Generated<number>;
   points_redeemed: Generated<number>;
+  partner_id: string | null;
   currency: string;
   status: Generated<string>;
   refunded_at: Date | null;
@@ -167,6 +178,7 @@ export interface Database {
   promo_codes: PromoCodesTable;
   loyalty_accounts: LoyaltyAccountsTable;
   loyalty_ledger: LoyaltyLedgerTable;
+  partners: PartnersTable;
   orders: OrdersTable;
   tickets: TicketsTable;
   schema_migrations: SchemaMigrationsTable;
