@@ -78,6 +78,9 @@ useSeoMeta({ title: 'Manage event' });
           <Badge :variant="statusVariant(event.status)" data-testid="status">{{ event.status }}</Badge>
         </div>
         <div class="flex items-center gap-2">
+          <NuxtLink :to="`/dashboard/orgs/${orgId}/events/${eventId}/analytics`">
+            <Button variant="outline" size="sm" data-testid="analytics-link">Analytics</Button>
+          </NuxtLink>
           <Button
             v-if="event.status !== 'published'"
             size="sm"
