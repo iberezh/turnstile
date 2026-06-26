@@ -1,6 +1,7 @@
 import Router from '@koa/router';
 import { getPublishedEventBySlug } from '../events/repository.js';
 import { API_PREFIX } from '../http.js';
+import { findActivePartner } from '../partners/repository.js';
 import { getOrgConnect } from '../payments/connect-repository.js';
 import { payments } from '../payments/index.js';
 import { priceOrder } from './pricing.js';
@@ -59,6 +60,12 @@ checkoutRouter.post('/events/:slug/checkout', async (ctx) => {
   }
   const { amountCents, discountCents, promoCodeId, pointsToEarn } = pricing.priced;
 
+  // Optional referral attribution — best-effort: an unknown/inactive code simply isn't attributed.
+  // It never changes the price or whether the order goes through (so a bad ref can't block a sale).
+  const partner = parsed.data.ref
+    ? await findActivePartner(event.orgId, parsed.data.ref)
+    : undefined;
+
   const feeCents = Math.round(amountCents * PLATFORM_TAKE_RATE);
   const intent = await payments.createPaymentIntent({
     amountCents,
@@ -91,6 +98,7 @@ checkoutRouter.post('/events/:slug/checkout', async (ctx) => {
     discountCents,
     promoCodeId,
     pointsEarned: pointsToEarn,
+    partnerId: partner?.id,
     currency: hold.currency,
     lines: hold.lines,
   });

@@ -15,6 +15,7 @@ import { loyaltyRouter } from './loyalty/routes.js';
 import { orderRouter } from './orders/routes.js';
 import { memberRouter } from './orgs/member-routes.js';
 import { orgRouter } from './orgs/routes.js';
+import { partnerRouter } from './partners/routes.js';
 import { connectRouter } from './payments/connect-routes.js';
 import { promoRouter } from './promos/routes.js';
 import { reservationRouter } from './reservations/routes.js';
@@ -42,6 +43,7 @@ const routers = [
   promoRouter,
   financeRouter,
   loyaltyRouter,
+  partnerRouter,
 ];
 
 export function createServer(): Koa {
