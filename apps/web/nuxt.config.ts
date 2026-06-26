@@ -5,6 +5,9 @@ export default defineNuxtConfig({
   devServer: { port: 3003 },
   modules: ['@nuxtjs/tailwindcss', 'shadcn-nuxt'],
   css: ['~/assets/css/tailwind.css'],
+  // The dashboard is authenticated and client-rendered (the API session cookie isn't available to
+  // SSR); public marketplace pages stay server-rendered for SEO.
+  routeRules: { '/dashboard/**': { ssr: false } },
   // shadcn-vue components live in components/ui and are used without a prefix (<Button/>).
   shadcn: { prefix: '', componentDir: '~/components/ui' },
   app: {
