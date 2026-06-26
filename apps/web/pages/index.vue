@@ -56,6 +56,11 @@ useSeoMeta({
       </div>
     </section>
 
+    <!-- Near you -->
+    <ClientOnly>
+      <NearbyEvents />
+    </ClientOnly>
+
     <!-- What's on -->
     <section id="whats-on" class="container scroll-mt-20 py-16">
       <div class="flex items-end justify-between border-b border-border/70 pb-4">

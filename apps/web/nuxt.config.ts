@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   devServer: { port: 3003 },
   modules: ['@nuxtjs/tailwindcss', 'shadcn-nuxt', '@nuxt/fonts'],
-  css: ['~/assets/css/tailwind.css'],
+  css: ['leaflet/dist/leaflet.css', '~/assets/css/tailwind.css'],
   // Self-hosted (downloaded + cached) brand type.
   fonts: {
     families: [
