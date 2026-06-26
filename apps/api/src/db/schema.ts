@@ -103,6 +103,24 @@ export interface PromoCodesTable {
   created_at: Generated<Date>;
 }
 
+export interface LoyaltyAccountsTable {
+  id: Generated<string>;
+  org_id: string;
+  email: string;
+  points_balance: Generated<number>;
+  created_at: Generated<Date>;
+}
+
+export interface LoyaltyLedgerTable {
+  id: Generated<string>;
+  org_id: string;
+  email: string;
+  order_id: string | null;
+  delta: number;
+  reason: string;
+  created_at: Generated<Date>;
+}
+
 export interface OrdersTable {
   id: Generated<string>;
   event_id: string;
@@ -114,6 +132,8 @@ export interface OrdersTable {
   fee_cents: number;
   discount_cents: Generated<number>;
   promo_code_id: string | null;
+  points_earned: Generated<number>;
+  points_redeemed: Generated<number>;
   currency: string;
   status: Generated<string>;
   refunded_at: Date | null;
@@ -145,6 +165,8 @@ export interface Database {
   ticket_types: TicketTypesTable;
   ticket_holds: TicketHoldsTable;
   promo_codes: PromoCodesTable;
+  loyalty_accounts: LoyaltyAccountsTable;
+  loyalty_ledger: LoyaltyLedgerTable;
   orders: OrdersTable;
   tickets: TicketsTable;
   schema_migrations: SchemaMigrationsTable;

@@ -11,6 +11,7 @@ import { eventRouter } from './events/routes.js';
 import { ticketTypeRouter } from './events/ticket-type-routes.js';
 import { financeRouter } from './finance/routes.js';
 import { API_PREFIX } from './http.js';
+import { loyaltyRouter } from './loyalty/routes.js';
 import { orderRouter } from './orders/routes.js';
 import { memberRouter } from './orgs/member-routes.js';
 import { orgRouter } from './orgs/routes.js';
@@ -40,6 +41,7 @@ const routers = [
   orderRouter,
   promoRouter,
   financeRouter,
+  loyaltyRouter,
 ];
 
 export function createServer(): Koa {
