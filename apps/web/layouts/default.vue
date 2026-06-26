@@ -1,15 +1,13 @@
 <template>
-  <div>
-    <header class="site-header">
-      <div class="container">
-        <NuxtLink to="/" class="brand">◇ Turnstile</NuxtLink>
-        <nav class="muted">discover events</nav>
+  <div class="min-h-screen">
+    <header class="border-b">
+      <div class="container flex items-center justify-between py-4">
+        <NuxtLink to="/" class="text-lg font-bold tracking-tight">◇ Turnstile</NuxtLink>
+        <nav class="text-sm text-muted-foreground">discover events</nav>
       </div>
     </header>
-    <main>
-      <div class="container">
-        <slot />
-      </div>
+    <main class="container py-10">
+      <slot />
     </main>
   </div>
 </template>

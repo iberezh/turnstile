@@ -14,16 +14,28 @@ useSeoMeta({
 
 <template>
   <section>
-    <h1>Upcoming events</h1>
-    <p v-if="!events || events.length === 0" class="muted">No published events yet.</p>
-    <div v-else class="grid">
-      <NuxtLink v-for="e in events" :key="e.id" :to="`/events/${e.slug}`" class="card">
-        <img v-if="e.coverImageUrl" :src="e.coverImageUrl" :alt="e.title" />
-        <div class="card-body">
-          <h2>{{ e.title }}</h2>
-          <p class="muted">{{ formatDateTime(e.startsAt, e.timezone) }}</p>
-          <p v-if="e.venueName" class="muted">{{ e.venueName }}</p>
-        </div>
+    <h1 class="text-2xl font-bold tracking-tight">Upcoming events</h1>
+    <p v-if="!events || events.length === 0" class="mt-2 text-muted-foreground">
+      No published events yet.
+    </p>
+    <div
+      v-else
+      class="mt-6 grid gap-5 [grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]"
+    >
+      <NuxtLink v-for="e in events" :key="e.id" :to="`/events/${e.slug}`" class="group">
+        <Card class="h-full overflow-hidden transition-colors group-hover:border-primary">
+          <img
+            v-if="e.coverImageUrl"
+            :src="e.coverImageUrl"
+            :alt="e.title"
+            class="h-36 w-full object-cover"
+          />
+          <CardHeader>
+            <CardTitle class="text-base">{{ e.title }}</CardTitle>
+            <CardDescription>{{ formatDateTime(e.startsAt, e.timezone) }}</CardDescription>
+            <CardDescription v-if="e.venueName">{{ e.venueName }}</CardDescription>
+          </CardHeader>
+        </Card>
       </NuxtLink>
     </div>
   </section>

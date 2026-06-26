@@ -56,29 +56,34 @@ useHead({
 </script>
 
 <template>
-  <article>
-    <img v-if="ev.coverImageUrl" :src="ev.coverImageUrl" :alt="ev.title" class="event-cover" />
-    <h1>{{ ev.title }}</h1>
-    <p class="muted">{{ formatDateTime(ev.startsAt, ev.timezone) }}</p>
-    <p v-if="ev.venueName" class="muted">
+  <article class="max-w-3xl">
+    <img
+      v-if="ev.coverImageUrl"
+      :src="ev.coverImageUrl"
+      :alt="ev.title"
+      class="mb-6 max-h-[360px] w-full rounded-xl border object-cover"
+    />
+    <h1 class="text-3xl font-bold tracking-tight">{{ ev.title }}</h1>
+    <p class="mt-1 text-muted-foreground">{{ formatDateTime(ev.startsAt, ev.timezone) }}</p>
+    <p v-if="ev.venueName" class="text-muted-foreground">
       {{ ev.venueName }}<span v-if="ev.venueAddress"> · {{ ev.venueAddress }}</span>
     </p>
-    <p v-if="ev.description" style="margin-top: 1.25rem; white-space: pre-line">
-      {{ ev.description }}
-    </p>
+    <p v-if="ev.description" class="mt-5 whitespace-pre-line">{{ ev.description }}</p>
 
-    <div class="tiers">
-      <div v-for="t in tiers" :key="t.id" class="tier">
-        <span>{{ t.name }}</span>
-        <span class="tier-price">{{ formatMoney(t.priceCents, t.currency) }}</span>
-      </div>
+    <Card class="mt-8">
+      <CardContent class="divide-y p-0">
+        <div v-for="t in tiers" :key="t.id" class="flex items-center justify-between px-5 py-3.5">
+          <span>{{ t.name }}</span>
+          <span class="font-semibold tabular-nums">{{ formatMoney(t.priceCents, t.currency) }}</span>
+        </div>
+      </CardContent>
+    </Card>
+
+    <div class="mt-6 flex items-center gap-3">
+      <Button type="button" size="lg" disabled>
+        Get tickets<span v-if="fromPrice !== null">&nbsp;· from {{ formatMoney(fromPrice) }}</span>
+      </Button>
+      <Badge variant="secondary">checkout coming soon</Badge>
     </div>
-
-    <p style="margin-top: 1.5rem; display: flex; align-items: center; gap: 0.75rem">
-      <button class="btn" type="button" disabled>
-        Get tickets<span v-if="fromPrice !== null"> · from {{ formatMoney(fromPrice) }}</span>
-      </button>
-      <span class="muted">checkout coming soon</span>
-    </p>
   </article>
 </template>
