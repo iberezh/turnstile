@@ -79,15 +79,23 @@ useSeoMeta({ title: 'Dashboard' });
       <p v-if="loading" class="text-muted-foreground">Loading…</p>
       <p v-else-if="!orgs.length" class="text-muted-foreground">No organizations yet.</p>
       <div v-else class="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]">
-        <Card v-for="o in orgs" :key="o.id" data-testid="org-card">
-          <CardHeader>
-            <CardTitle class="text-base">{{ o.name }}</CardTitle>
-            <CardDescription>/{{ o.slug }}</CardDescription>
-          </CardHeader>
-          <CardContent v-if="o.role">
-            <Badge variant="secondary">{{ o.role }}</Badge>
-          </CardContent>
-        </Card>
+        <NuxtLink
+          v-for="o in orgs"
+          :key="o.id"
+          :to="`/dashboard/orgs/${o.id}`"
+          class="group"
+          data-testid="org-card"
+        >
+          <Card class="h-full transition-colors group-hover:border-primary">
+            <CardHeader>
+              <CardTitle class="text-base">{{ o.name }}</CardTitle>
+              <CardDescription>/{{ o.slug }}</CardDescription>
+            </CardHeader>
+            <CardContent v-if="o.role">
+              <Badge variant="secondary">{{ o.role }}</Badge>
+            </CardContent>
+          </Card>
+        </NuxtLink>
       </div>
     </div>
   </div>
