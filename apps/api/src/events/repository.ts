@@ -1,7 +1,7 @@
 import type { Selectable, Updateable } from 'kysely';
 import { db } from '../db/client.js';
 import type { EventsTable } from '../db/schema.js';
-import type { EventStatus, UpdateEventInput } from './schemas.js';
+import type { DiscoveryInput, EventStatus, UpdateEventInput } from './schemas.js';
 
 export interface EventRecord {
   id: string;
@@ -110,15 +110,25 @@ export async function setEventStatus(id: string, status: EventStatus): Promise<v
 
 // Marketplace-visible = published, not moderated away, and the owning org isn't suspended.
 // The org-suspend / event-moderate flags are written by the separate platform control plane.
-export async function listPublishedEvents(): Promise<EventRecord[]> {
-  const rows = await db
-    .selectFrom('events')
-    .innerJoin('organizations', 'organizations.id', 'events.org_id')
-    .selectAll('events')
-    .where('events.status', '=', 'published')
-    .where('events.moderation_status', '=', 'ok')
-    .where('organizations.suspended_at', 'is', null)
-    .orderBy('events.starts_at', 'asc')
+// Supports free-text title search, a starts_at date range, and pagination.
+export async function searchPublishedEvents(query: DiscoveryInput): Promise<EventRecord[]> {
+  let qb = db
+    .selectFrom('events as e')
+    .innerJoin('organizations as o', 'o.id', 'e.org_id')
+    .where('e.status', '=', 'published')
+    .where('e.moderation_status', '=', 'ok')
+    .where('o.suspended_at', 'is', null);
+  if (query.q) {
+    // Escape LIKE wildcards so user input is matched literally (case-insensitive).
+    qb = qb.where('e.title', 'ilike', `%${query.q.replace(/[%_\\]/g, '\\$&')}%`);
+  }
+  if (query.from) qb = qb.where('e.starts_at', '>=', query.from);
+  if (query.to) qb = qb.where('e.starts_at', '<=', query.to);
+  const rows = await qb
+    .selectAll('e')
+    .orderBy('e.starts_at', 'asc')
+    .limit(query.limit)
+    .offset(query.offset)
     .execute();
   return rows.map(toEvent);
 }

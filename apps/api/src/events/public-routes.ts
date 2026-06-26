@@ -1,6 +1,7 @@
 import Router from '@koa/router';
 import { API_PREFIX } from '../http.js';
-import { getPublishedEventBySlug, listPublishedEvents } from './repository.js';
+import { getPublishedEventBySlug, searchPublishedEvents } from './repository.js';
+import { DiscoverySchema } from './schemas.js';
 import { listTicketTypes } from './ticket-type-repository.js';
 
 // Public, unauthenticated marketplace reads — the data source for the SSR event pages.
@@ -8,7 +9,13 @@ import { listTicketTypes } from './ticket-type-repository.js';
 export const publicEventRouter = new Router({ prefix: API_PREFIX });
 
 publicEventRouter.get('/events', async (ctx) => {
-  ctx.body = await listPublishedEvents();
+  const parsed = DiscoverySchema.safeParse(ctx.query);
+  if (!parsed.success) {
+    ctx.status = 400;
+    ctx.body = { error: 'invalid query' };
+    return;
+  }
+  ctx.body = await searchPublishedEvents(parsed.data);
 });
 
 publicEventRouter.get('/events/:slug', async (ctx) => {
