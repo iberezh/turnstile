@@ -1,4 +1,6 @@
 import Router from '@koa/router';
+import { AUTH_COOKIE } from '../auth/cookie.js';
+import { verifySession } from '../auth/tokens.js';
 import { getPublishedEventBySlug } from '../events/repository.js';
 import { API_PREFIX } from '../http.js';
 import { findActivePartner } from '../partners/repository.js';
@@ -66,6 +68,18 @@ checkoutRouter.post('/events/:slug/checkout', async (ctx) => {
     ? await findActivePartner(event.orgId, parsed.data.ref)
     : undefined;
 
+  // Optional auth: if the buyer is signed in, link the order to their account (for "My tickets").
+  // Guest checkout is still allowed — an absent or invalid session just leaves it unlinked.
+  let userId: string | undefined;
+  const session = ctx.cookies.get(AUTH_COOKIE);
+  if (session) {
+    try {
+      userId = verifySession(session).id;
+    } catch {
+      /* guest */
+    }
+  }
+
   const feeCents = Math.round(amountCents * PLATFORM_TAKE_RATE);
   const intent = await payments.createPaymentIntent({
     amountCents,
@@ -99,6 +113,7 @@ checkoutRouter.post('/events/:slug/checkout', async (ctx) => {
     promoCodeId,
     pointsEarned: pointsToEarn,
     partnerId: partner?.id,
+    userId,
     currency: hold.currency,
     lines: hold.lines,
   });
