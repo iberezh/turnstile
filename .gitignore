@@ -12,4 +12,5 @@ coverage/
 .DS_Store
 # local-only — never in the public repo
 CLAUDE.md
-docs/
+docs/*
+!docs/screenshots/
