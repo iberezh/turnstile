@@ -1,7 +1,8 @@
 import type { Selectable, Updateable } from 'kysely';
 import { db } from '../db/client.js';
 import type { EventsTable } from '../db/schema.js';
-import type { DiscoveryInput, EventStatus, UpdateEventInput } from './schemas.js';
+import { cellFor } from './geo.js';
+import type { EventStatus, UpdateEventInput } from './schemas.js';
 
 export interface EventRecord {
   id: string;
@@ -15,6 +16,8 @@ export interface EventRecord {
   startsAt: Date;
   endsAt: Date | null;
   timezone: string;
+  lat: number | null;
+  lng: number | null;
   status: string;
   createdBy: string;
 }
@@ -31,9 +34,11 @@ export interface NewEvent {
   startsAt: Date;
   endsAt?: Date | undefined;
   timezone: string;
+  lat?: number | undefined;
+  lng?: number | undefined;
 }
 
-function toEvent(row: Selectable<EventsTable>): EventRecord {
+export function toEvent(row: Selectable<EventsTable>): EventRecord {
   return {
     id: row.id,
     orgId: row.org_id,
@@ -46,9 +51,20 @@ function toEvent(row: Selectable<EventsTable>): EventRecord {
     startsAt: row.starts_at,
     endsAt: row.ends_at,
     timezone: row.timezone,
+    lat: row.lat,
+    lng: row.lng,
     status: row.status,
     createdBy: row.created_by,
   };
+}
+
+// Derive the lat/lng/h3 columns from an optional map pin — both coordinates or nothing.
+function geoColumns(
+  lat?: number,
+  lng?: number,
+): { lat: number | null; lng: number | null; h3: string | null } {
+  if (lat === undefined || lng === undefined) return { lat: null, lng: null, h3: null };
+  return { lat, lng, h3: cellFor(lat, lng) };
 }
 
 export async function createEvent(input: NewEvent): Promise<EventRecord> {
@@ -65,6 +81,7 @@ export async function createEvent(input: NewEvent): Promise<EventRecord> {
       starts_at: input.startsAt,
       ends_at: input.endsAt ?? null,
       timezone: input.timezone,
+      ...geoColumns(input.lat, input.lng),
       created_by: input.createdBy,
     })
     .returningAll()
@@ -97,6 +114,10 @@ export async function updateEvent(id: string, patch: UpdateEventInput): Promise<
   if (patch.startsAt !== undefined) set.starts_at = patch.startsAt;
   if (patch.endsAt !== undefined) set.ends_at = patch.endsAt;
   if (patch.timezone !== undefined) set.timezone = patch.timezone;
+  // Geo is repinned only when both coordinates arrive together, so h3 never drifts out of sync.
+  if (patch.lat !== undefined && patch.lng !== undefined) {
+    Object.assign(set, geoColumns(patch.lat, patch.lng));
+  }
   await db.updateTable('events').set(set).where('id', '=', id).execute();
 }
 
@@ -106,31 +127,6 @@ export async function setEventStatus(id: string, status: EventStatus): Promise<v
     .set({ status, updated_at: new Date() })
     .where('id', '=', id)
     .execute();
-}
-
-// Marketplace-visible = published, not moderated away, and the owning org isn't suspended.
-// The org-suspend / event-moderate flags are written by the separate platform control plane.
-// Supports free-text title search, a starts_at date range, and pagination.
-export async function searchPublishedEvents(query: DiscoveryInput): Promise<EventRecord[]> {
-  let qb = db
-    .selectFrom('events as e')
-    .innerJoin('organizations as o', 'o.id', 'e.org_id')
-    .where('e.status', '=', 'published')
-    .where('e.moderation_status', '=', 'ok')
-    .where('o.suspended_at', 'is', null);
-  if (query.q) {
-    // Escape LIKE wildcards so user input is matched literally (case-insensitive).
-    qb = qb.where('e.title', 'ilike', `%${query.q.replace(/[%_\\]/g, '\\$&')}%`);
-  }
-  if (query.from) qb = qb.where('e.starts_at', '>=', query.from);
-  if (query.to) qb = qb.where('e.starts_at', '<=', query.to);
-  const rows = await qb
-    .selectAll('e')
-    .orderBy('e.starts_at', 'asc')
-    .limit(query.limit)
-    .offset(query.offset)
-    .execute();
-  return rows.map(toEvent);
 }
 
 export async function getPublishedEventBySlug(slug: string): Promise<EventRecord | undefined> {

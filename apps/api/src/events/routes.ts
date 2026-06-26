@@ -42,6 +42,8 @@ eventRouter.post(
       startsAt: parsed.data.startsAt,
       endsAt: parsed.data.endsAt,
       timezone: parsed.data.timezone ?? 'UTC',
+      lat: parsed.data.lat,
+      lng: parsed.data.lng,
     });
     await writeAudit({
       actorId: user.id,

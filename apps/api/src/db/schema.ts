@@ -55,6 +55,10 @@ export interface EventsTable {
   starts_at: Date;
   ends_at: Date | null;
   timezone: string;
+  // Geolocation for "near me" discovery: precise point (lat/lng) + its H3 cell (coarse index).
+  lat: number | null;
+  lng: number | null;
+  h3: string | null;
   status: Generated<string>;
   // Platform moderation: 'ok' (default) | 'removed'. Anything but 'ok' is hidden from discovery.
   moderation_status: Generated<string>;
