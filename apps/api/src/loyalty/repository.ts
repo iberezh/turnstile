@@ -42,6 +42,8 @@ export async function creditPoints(
 
 // Atomically subtract points only if the balance covers it (same conditional-update guard as
 // inventory). Returns false when there aren't enough (or no account); no ledger entry is written.
+// Spending points is intentionally an authorized, org-side action (the adjust route, loyalty:manage)
+// — never the public checkout, which can't prove the caller owns the email a balance is keyed to.
 export async function debitPoints(
   exec: Executor,
   orgId: string,

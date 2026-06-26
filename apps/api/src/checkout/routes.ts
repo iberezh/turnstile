@@ -45,29 +45,19 @@ checkoutRouter.post('/events/:slug/checkout', async (ctx) => {
     return;
   }
 
-  // Promo + loyalty redemption are priced server-side; the caps are re-checked atomically at
-  // fulfilment. A bad code or a points overspend is rejected here before any charge.
+  // Promo is priced server-side; its cap is re-checked atomically at fulfilment. A bad code is
+  // rejected here before any charge.
   const pricing = await priceOrder({
     eventId: event.id,
-    orgId: event.orgId,
-    buyerEmail: parsed.data.buyerEmail,
     hold,
     promoCode: parsed.data.promoCode,
-    redeemPoints: parsed.data.redeemPoints,
   });
   if (!pricing.ok) {
     ctx.status = 409;
     ctx.body = { error: pricing.error };
     return;
   }
-  const {
-    amountCents,
-    discountCents,
-    promoCodeId,
-    pointsRedeemed,
-    pointsDiscountCents,
-    pointsToEarn,
-  } = pricing.priced;
+  const { amountCents, discountCents, promoCodeId, pointsToEarn } = pricing.priced;
 
   const feeCents = Math.round(amountCents * PLATFORM_TAKE_RATE);
   const intent = await payments.createPaymentIntent({
@@ -85,7 +75,6 @@ checkoutRouter.post('/events/:slug/checkout', async (ctx) => {
       clientSecret: intent.clientSecret,
       amountCents,
       discountCents,
-      pointsDiscountCents,
       feeCents,
     };
     return;
@@ -101,7 +90,6 @@ checkoutRouter.post('/events/:slug/checkout', async (ctx) => {
     feeCents,
     discountCents,
     promoCodeId,
-    redeemPoints: pointsRedeemed,
     pointsEarned: pointsToEarn,
     currency: hold.currency,
     lines: hold.lines,
@@ -117,8 +105,6 @@ checkoutRouter.post('/events/:slug/checkout', async (ctx) => {
     orderId: result.orderId,
     amountCents,
     discountCents,
-    pointsDiscountCents,
-    pointsRedeemed,
     pointsEarned: pointsToEarn,
     feeCents,
     currency: hold.currency,
