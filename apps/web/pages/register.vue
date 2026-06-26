@@ -11,7 +11,8 @@ async function submit() {
   pending.value = true;
   try {
     await register(email.value, password.value, name.value);
-    await navigateTo('/dashboard');
+    const redirect = useRoute().query.redirect;
+    await navigateTo(typeof redirect === 'string' ? redirect : '/dashboard');
   } catch {
     error.value = 'Could not create the account (email may already be registered).';
   } finally {
@@ -23,11 +24,11 @@ useSeoMeta({ title: 'Create account' });
 </script>
 
 <template>
-  <div class="mx-auto max-w-sm py-6">
+  <div class="mx-auto max-w-sm px-4 pb-16 pt-28">
     <Card>
       <CardHeader>
         <CardTitle>Create your account</CardTitle>
-        <CardDescription>Start selling tickets on Turnstile.</CardDescription>
+        <CardDescription>One account to buy tickets and to run your own events.</CardDescription>
       </CardHeader>
       <CardContent>
         <form class="space-y-4" @submit.prevent="submit">

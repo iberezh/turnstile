@@ -12,7 +12,6 @@ if (!data.value) {
 
 const ev = data.value.event;
 const tiers = data.value.ticketTypes;
-const fromPrice = tiers.length ? Math.min(...tiers.map((t) => t.priceCents)) : null;
 
 useSeoMeta({
   title: ev.title,
@@ -82,26 +81,7 @@ useHead({
       {{ ev.description }}
     </p>
 
-    <Card class="mt-8">
-      <CardContent class="divide-y p-0">
-        <div v-for="t in tiers" :key="t.id" class="flex items-center justify-between px-5 py-4">
-          <span class="font-medium">{{ t.name }}</span>
-          <span class="font-display font-semibold tabular-nums">
-            {{ formatMoney(t.priceCents, t.currency) }}
-          </span>
-        </div>
-      </CardContent>
-    </Card>
-
-    <div class="mt-6 flex items-center gap-3">
-      <button
-        type="button"
-        disabled
-        class="rounded-lg bg-sun px-6 py-3 font-display text-sm font-semibold text-sun-foreground opacity-70"
-      >
-        Get tickets<span v-if="fromPrice !== null">&nbsp;· from {{ formatMoney(fromPrice) }}</span>
-      </button>
-      <Badge variant="secondary">checkout coming soon</Badge>
-    </div>
+    <CheckoutPanel v-if="tiers.length" :slug="slug" :tiers="tiers" class="mt-8" />
+    <Badge v-else variant="secondary" class="mt-8">Tickets not on sale yet</Badge>
   </article>
 </template>

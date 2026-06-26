@@ -10,7 +10,8 @@ async function submit() {
   pending.value = true;
   try {
     await login(email.value, password.value);
-    await navigateTo('/dashboard');
+    const redirect = useRoute().query.redirect;
+    await navigateTo(typeof redirect === 'string' ? redirect : '/dashboard');
   } catch {
     error.value = 'Invalid email or password.';
   } finally {
@@ -22,11 +23,11 @@ useSeoMeta({ title: 'Sign in' });
 </script>
 
 <template>
-  <div class="mx-auto max-w-sm py-6">
+  <div class="mx-auto max-w-sm px-4 pb-16 pt-28">
     <Card>
       <CardHeader>
         <CardTitle>Sign in</CardTitle>
-        <CardDescription>Access your organizer dashboard.</CardDescription>
+        <CardDescription>Your tickets and your events, all in one place.</CardDescription>
       </CardHeader>
       <CardContent>
         <form class="space-y-4" @submit.prevent="submit">

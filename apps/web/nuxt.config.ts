@@ -14,7 +14,7 @@ export default defineNuxtConfig({
   },
   // The dashboard is authenticated and client-rendered (the API session cookie isn't available to
   // SSR); public marketplace pages stay server-rendered for SEO.
-  routeRules: { '/dashboard/**': { ssr: false } },
+  routeRules: { '/dashboard/**': { ssr: false }, '/tickets': { ssr: false } },
   shadcn: { prefix: '', componentDir: '~/components/ui' },
   app: {
     head: {

@@ -57,6 +57,7 @@ const links = [
         >
           Sell tickets
         </NuxtLink>
+        <AccountMenu :scrolled="scrolled" />
         <ThemeToggle />
       </nav>
     </div>
