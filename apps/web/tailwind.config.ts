@@ -13,9 +13,17 @@ export default {
     './error.vue',
   ],
   theme: {
-    container: { center: true, padding: '1.25rem', screens: { '2xl': '1100px' } },
+    container: { center: true, padding: '1.25rem', screens: { '2xl': '1180px' } },
     extend: {
+      fontFamily: {
+        display: ['Bricolage Grotesque', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['Hanken Grotesk', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['Space Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+      },
       colors: {
+        // Brand accents used directly (outside the semantic shadcn tokens).
+        gold: 'hsl(var(--gold))',
+        cyan: 'hsl(var(--brand))',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',

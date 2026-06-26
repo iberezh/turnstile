@@ -2,29 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
-/* shadcn-vue design tokens. The app is dark-only for now, so the dark palette is the default
-   :root — this keeps SSR (marketplace) and CSR (dashboard) routes consistent without depending on
-   a runtime html class. Brand accent is violet to match Turnstile. */
+/* Turnstile brand tokens. A teal-black "void" with an electric cyan brand and a reserved
+   royal-gold "golden ticket" accent. shadcn semantic vars resolve to these. */
 @layer base {
   :root {
-    --background: 222 24% 7%;
-    --foreground: 220 20% 96%;
-    --card: 222 19% 11%;
-    --card-foreground: 220 20% 96%;
-    --primary: 256 100% 68%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 222 16% 16%;
-    --secondary-foreground: 220 20% 96%;
-    --muted: 222 16% 16%;
-    --muted-foreground: 220 12% 65%;
-    --accent: 222 16% 16%;
-    --accent-foreground: 220 20% 96%;
-    --destructive: 0 63% 50%;
+    --background: 189 56% 7%; /* void  #08191c */
+    --foreground: 189 45% 95%; /* ink   #ebf7f9 */
+    --card: 189 52% 10%;
+    --card-foreground: 189 45% 95%;
+    --primary: 176 56% 50%; /* cyan  #38c7bd */
+    --primary-foreground: 189 60% 6%;
+    --secondary: 189 50% 13%;
+    --secondary-foreground: 189 45% 95%;
+    --muted: 189 48% 13%;
+    --muted-foreground: 187 16% 62%;
+    --accent: 188 50% 16%;
+    --accent-foreground: 189 45% 95%;
+    --destructive: 0 100% 40%; /* sold out / error */
     --destructive-foreground: 0 0% 100%;
-    --border: 223 16% 20%;
-    --input: 223 16% 20%;
-    --ring: 256 100% 68%;
-    --radius: 0.65rem;
+    --border: 189 38% 18%;
+    --input: 189 38% 18%;
+    --ring: 176 56% 50%;
+    --radius: 0.6rem;
+    --gold: 50 100% 50%; /* #ffd500 */
+    --brand: 176 56% 50%; /* cyan */
   }
 
   * {
@@ -32,5 +33,24 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
+    font-family: 'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif;
+  }
+  ::selection {
+    background: hsl(var(--brand) / 0.3);
+  }
+}
+
+@layer components {
+  /* Faint dot lattice — a nod to a QR field / station signage, used behind the hero. */
+  .bg-dotgrid {
+    background-image: radial-gradient(hsl(var(--brand) / 0.12) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  /* Tear-off perforation: a row of holes punched along an edge, like a ticket stub. */
+  .perforation {
+    background-image: radial-gradient(circle, hsl(var(--background)) 3px, transparent 3.5px);
+    background-size: 14px 8px;
+    background-position: center;
+    background-repeat: repeat-x;
   }
 }

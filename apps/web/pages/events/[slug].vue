@@ -56,33 +56,48 @@ useHead({
 </script>
 
 <template>
-  <article class="max-w-3xl">
+  <article class="container max-w-3xl py-12">
+    <NuxtLink to="/" class="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground">
+      ← What's on
+    </NuxtLink>
     <img
       v-if="ev.coverImageUrl"
       :src="ev.coverImageUrl"
       :alt="ev.title"
-      class="mb-6 max-h-[360px] w-full rounded-xl border object-cover"
+      class="mb-6 mt-4 max-h-[360px] w-full rounded-xl border object-cover"
     />
-    <h1 class="text-3xl font-bold tracking-tight">{{ ev.title }}</h1>
-    <p class="mt-1 text-muted-foreground">{{ formatDateTime(ev.startsAt, ev.timezone) }}</p>
-    <p v-if="ev.venueName" class="text-muted-foreground">
+    <p class="mt-6 font-mono text-xs uppercase tracking-[0.2em] text-primary">
+      {{ formatDateTime(ev.startsAt, ev.timezone) }}
+    </p>
+    <h1 class="mt-3 font-display text-4xl font-extrabold leading-tight tracking-tight">
+      {{ ev.title }}
+    </h1>
+    <p v-if="ev.venueName" class="mt-2 text-muted-foreground">
       {{ ev.venueName }}<span v-if="ev.venueAddress"> · {{ ev.venueAddress }}</span>
     </p>
-    <p v-if="ev.description" class="mt-5 whitespace-pre-line">{{ ev.description }}</p>
+    <p v-if="ev.description" class="mt-5 whitespace-pre-line text-muted-foreground">
+      {{ ev.description }}
+    </p>
 
     <Card class="mt-8">
       <CardContent class="divide-y p-0">
-        <div v-for="t in tiers" :key="t.id" class="flex items-center justify-between px-5 py-3.5">
-          <span>{{ t.name }}</span>
-          <span class="font-semibold tabular-nums">{{ formatMoney(t.priceCents, t.currency) }}</span>
+        <div v-for="t in tiers" :key="t.id" class="flex items-center justify-between px-5 py-4">
+          <span class="font-medium">{{ t.name }}</span>
+          <span class="font-mono font-semibold tabular-nums text-gold">
+            {{ formatMoney(t.priceCents, t.currency) }}
+          </span>
         </div>
       </CardContent>
     </Card>
 
     <div class="mt-6 flex items-center gap-3">
-      <Button type="button" size="lg" disabled>
+      <button
+        type="button"
+        disabled
+        class="rounded-lg bg-gold px-6 py-3 font-mono text-sm font-bold uppercase tracking-wide text-[hsl(189_60%_8%)] opacity-60"
+      >
         Get tickets<span v-if="fromPrice !== null">&nbsp;· from {{ formatMoney(fromPrice) }}</span>
-      </Button>
+      </button>
       <Badge variant="secondary">checkout coming soon</Badge>
     </div>
   </article>
