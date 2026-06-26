@@ -1,5 +1,6 @@
 import { sql } from 'kysely';
 import { db } from '../db/client.js';
+import { creditPoints, debitPoints } from '../loyalty/repository.js';
 import { signTicket } from '../tickets/qr.js';
 
 export interface CheckoutLine {
@@ -56,6 +57,8 @@ export interface FulfilInput {
   feeCents: number;
   discountCents: number;
   promoCodeId?: string | undefined;
+  redeemPoints: number;
+  pointsEarned: number;
   currency: string;
   lines: { ticketTypeId: string; quantity: number }[];
 }
@@ -64,85 +67,120 @@ export interface FulfilResult {
   ticketTokens: string[];
 }
 
+// Thrown inside the fulfilment transaction to force a rollback when a claim (promo cap, points
+// balance) loses a race after we've already started writing. Caught below and surfaced as null.
+class Unfulfillable extends Error {}
+
 // Convert a paid hold into an order + issued tickets. Idempotent (one order per payment) and
 // row-locked, so a webhook re-delivery or a double-submit can't double-issue. The hold's seats
 // stay reserved — they just move from 'held' to 'converted'.
 export async function fulfilOrder(input: FulfilInput): Promise<FulfilResult | null> {
-  return db.transaction().execute(async (trx) => {
-    const existing = await trx
-      .selectFrom('orders')
-      .select('id')
-      .where('payment_intent_id', '=', input.paymentIntentId)
-      .executeTakeFirst();
-    if (existing) return null;
-
-    const held = await trx
-      .selectFrom('ticket_holds')
-      .select('id')
-      .where('hold_id', '=', input.holdId)
-      .where('status', '=', 'held')
-      .forUpdate()
-      .execute();
-    if (held.length === 0) return null;
-
-    // Atomically claim one redemption under the cap — same guard as ticket inventory. If the code
-    // was deactivated or hit its limit since pricing, this matches 0 rows and the order is voided.
-    if (input.promoCodeId) {
-      const redeemed = await trx
-        .updateTable('promo_codes')
-        .set({ redeemed_count: sql<number>`redeemed_count + 1` })
-        .where('id', '=', input.promoCodeId)
-        .where('active', '=', true)
-        .where((eb) =>
-          eb.or([
-            eb('max_redemptions', 'is', null),
-            eb('redeemed_count', '<', eb.ref('max_redemptions')),
-          ]),
-        )
+  try {
+    return await db.transaction().execute(async (trx) => {
+      const existing = await trx
+        .selectFrom('orders')
+        .select('id')
+        .where('payment_intent_id', '=', input.paymentIntentId)
         .executeTakeFirst();
-      if (Number(redeemed.numUpdatedRows) === 0) return null;
-    }
+      if (existing) return null; // idempotent replay — nothing written, safe to commit empty
 
-    const order = await trx
-      .insertInto('orders')
-      .values({
-        event_id: input.eventId,
-        org_id: input.orgId,
-        hold_id: input.holdId,
-        payment_intent_id: input.paymentIntentId,
-        buyer_email: input.buyerEmail,
-        amount_cents: input.amountCents,
-        fee_cents: input.feeCents,
-        discount_cents: input.discountCents,
-        promo_code_id: input.promoCodeId ?? null,
-        currency: input.currency,
-      })
-      .returning('id')
-      .executeTakeFirstOrThrow();
+      const held = await trx
+        .selectFrom('ticket_holds')
+        .select('id')
+        .where('hold_id', '=', input.holdId)
+        .where('status', '=', 'held')
+        .forUpdate()
+        .execute();
+      if (held.length === 0) return null;
 
-    const ticketTokens: string[] = [];
-    for (const line of input.lines) {
-      for (let i = 0; i < line.quantity; i++) {
-        const ticket = await trx
-          .insertInto('tickets')
-          .values({
-            order_id: order.id,
-            event_id: input.eventId,
-            ticket_type_id: line.ticketTypeId,
-            attendee_email: input.buyerEmail,
-          })
-          .returning('id')
-          .executeTakeFirstOrThrow();
-        ticketTokens.push(signTicket(ticket.id, input.eventId));
+      const order = await trx
+        .insertInto('orders')
+        .values({
+          event_id: input.eventId,
+          org_id: input.orgId,
+          hold_id: input.holdId,
+          payment_intent_id: input.paymentIntentId,
+          buyer_email: input.buyerEmail,
+          amount_cents: input.amountCents,
+          fee_cents: input.feeCents,
+          discount_cents: input.discountCents,
+          promo_code_id: input.promoCodeId ?? null,
+          points_earned: input.pointsEarned,
+          points_redeemed: input.redeemPoints,
+          currency: input.currency,
+        })
+        .returning('id')
+        .executeTakeFirstOrThrow();
+
+      // Claim a promo redemption under its cap — same guard as ticket inventory. A loss here (code
+      // deactivated or capped since pricing) throws to roll back the order just inserted.
+      if (input.promoCodeId) {
+        const redeemed = await trx
+          .updateTable('promo_codes')
+          .set({ redeemed_count: sql<number>`redeemed_count + 1` })
+          .where('id', '=', input.promoCodeId)
+          .where('active', '=', true)
+          .where((eb) =>
+            eb.or([
+              eb('max_redemptions', 'is', null),
+              eb('redeemed_count', '<', eb.ref('max_redemptions')),
+            ]),
+          )
+          .executeTakeFirst();
+        if (Number(redeemed.numUpdatedRows) === 0) throw new Unfulfillable();
       }
-    }
 
-    await trx
-      .updateTable('ticket_holds')
-      .set({ status: 'converted' })
-      .where('hold_id', '=', input.holdId)
-      .where('status', '=', 'held')
-      .execute();
-    return { orderId: order.id, ticketTokens };
-  });
+      // Spend loyalty points atomically (balance guard); throw to roll everything back if short.
+      if (input.redeemPoints > 0) {
+        const ok = await debitPoints(
+          trx,
+          input.orgId,
+          input.buyerEmail,
+          order.id,
+          input.redeemPoints,
+          'redeem',
+        );
+        if (!ok) throw new Unfulfillable();
+      }
+
+      const ticketTokens: string[] = [];
+      for (const line of input.lines) {
+        for (let i = 0; i < line.quantity; i++) {
+          const ticket = await trx
+            .insertInto('tickets')
+            .values({
+              order_id: order.id,
+              event_id: input.eventId,
+              ticket_type_id: line.ticketTypeId,
+              attendee_email: input.buyerEmail,
+            })
+            .returning('id')
+            .executeTakeFirstOrThrow();
+          ticketTokens.push(signTicket(ticket.id, input.eventId));
+        }
+      }
+
+      if (input.pointsEarned > 0) {
+        await creditPoints(
+          trx,
+          input.orgId,
+          input.buyerEmail,
+          order.id,
+          input.pointsEarned,
+          'earn',
+        );
+      }
+
+      await trx
+        .updateTable('ticket_holds')
+        .set({ status: 'converted' })
+        .where('hold_id', '=', input.holdId)
+        .where('status', '=', 'held')
+        .execute();
+      return { orderId: order.id, ticketTokens };
+    });
+  } catch (e) {
+    if (e instanceof Unfulfillable) return null;
+    throw e;
+  }
 }

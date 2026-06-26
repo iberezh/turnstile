@@ -3,8 +3,7 @@ import { getPublishedEventBySlug } from '../events/repository.js';
 import { API_PREFIX } from '../http.js';
 import { getOrgConnect } from '../payments/connect-repository.js';
 import { payments } from '../payments/index.js';
-import { computeDiscountCents, promoRedeemable } from '../promos/discount.js';
-import { findPromoByCode } from '../promos/repository.js';
+import { priceOrder } from './pricing.js';
 import { fulfilOrder, loadHeldHold } from './repository.js';
 import { CheckoutSchema } from './schemas.js';
 
@@ -46,21 +45,29 @@ checkoutRouter.post('/events/:slug/checkout', async (ctx) => {
     return;
   }
 
-  // Optional promo: priced server-side. The redemption cap is re-checked atomically at fulfilment;
-  // this pre-flight validates the code and computes the discounted total + fee.
-  let discountCents = 0;
-  let promoCodeId: string | undefined;
-  if (parsed.data.promoCode) {
-    const promo = await findPromoByCode(event.id, parsed.data.promoCode);
-    if (!promo || !promoRedeemable(promo, Date.now())) {
-      ctx.status = 409;
-      ctx.body = { error: 'invalid promo code' };
-      return;
-    }
-    discountCents = computeDiscountCents(hold.amountCents, promo.discountType, promo.discountValue);
-    promoCodeId = promo.id;
+  // Promo + loyalty redemption are priced server-side; the caps are re-checked atomically at
+  // fulfilment. A bad code or a points overspend is rejected here before any charge.
+  const pricing = await priceOrder({
+    eventId: event.id,
+    orgId: event.orgId,
+    buyerEmail: parsed.data.buyerEmail,
+    hold,
+    promoCode: parsed.data.promoCode,
+    redeemPoints: parsed.data.redeemPoints,
+  });
+  if (!pricing.ok) {
+    ctx.status = 409;
+    ctx.body = { error: pricing.error };
+    return;
   }
-  const amountCents = hold.amountCents - discountCents;
+  const {
+    amountCents,
+    discountCents,
+    promoCodeId,
+    pointsRedeemed,
+    pointsDiscountCents,
+    pointsToEarn,
+  } = pricing.priced;
 
   const feeCents = Math.round(amountCents * PLATFORM_TAKE_RATE);
   const intent = await payments.createPaymentIntent({
@@ -78,6 +85,7 @@ checkoutRouter.post('/events/:slug/checkout', async (ctx) => {
       clientSecret: intent.clientSecret,
       amountCents,
       discountCents,
+      pointsDiscountCents,
       feeCents,
     };
     return;
@@ -93,6 +101,8 @@ checkoutRouter.post('/events/:slug/checkout', async (ctx) => {
     feeCents,
     discountCents,
     promoCodeId,
+    redeemPoints: pointsRedeemed,
+    pointsEarned: pointsToEarn,
     currency: hold.currency,
     lines: hold.lines,
   });
@@ -107,6 +117,9 @@ checkoutRouter.post('/events/:slug/checkout', async (ctx) => {
     orderId: result.orderId,
     amountCents,
     discountCents,
+    pointsDiscountCents,
+    pointsRedeemed,
+    pointsEarned: pointsToEarn,
     feeCents,
     currency: hold.currency,
     tickets: result.ticketTokens,
